@@ -26,14 +26,20 @@ final class CoreDataStack {
     }
 
     private init() {}
+}
 
-    func saveContext() {
-        guard context.hasChanges else { return }
+// MARK: - NSManagedObjectContext
+
+extension NSManagedObjectContext {
+
+    /// Сохраняет изменения, а при ошибке откатывает их и отдаёт ошибку вызывающему.
+    func saveOrRollback() throws {
+        guard hasChanges else { return }
         do {
-            try context.save()
+            try save()
         } catch {
-            context.rollback()
-            assertionFailure("Не удалось сохранить контекст: \(error)")
+            rollback()
+            throw error
         }
     }
 }

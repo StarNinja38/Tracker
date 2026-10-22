@@ -15,25 +15,28 @@ final class TrackerRecordStore: NSObject {
 
     private let context: NSManagedObjectContext
     private let trackerStore: TrackerStore
+    private let fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData>
 
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData> = {
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore) {
+        self.context = context
+        self.trackerStore = trackerStore
+
         let request = TrackerRecordCoreData.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerRecordCoreData.date, ascending: true)]
-        let controller = NSFetchedResultsController(
+        fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: context,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
-        controller.delegate = self
-        try? controller.performFetch()
-        return controller
-    }()
 
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore) {
-        self.context = context
-        self.trackerStore = trackerStore
         super.init()
+        fetchedResultsController.delegate = self
+    }
+
+    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
+    func performFetch() throws {
+        try fetchedResultsController.performFetch()
     }
 
     var records: [TrackerRecord] {
@@ -43,24 +46,23 @@ final class TrackerRecordStore: NSObject {
         }
     }
 
-    func addRecord(_ record: TrackerRecord) {
+    func addRecord(_ record: TrackerRecord) throws {
         let recordCoreData = TrackerRecordCoreData(context: context)
         recordCoreData.trackerId = record.trackerId
         recordCoreData.date = record.date
-        recordCoreData.tracker = trackerStore.trackerCoreData(with: record.trackerId)
-        CoreDataStack.shared.saveContext()
+        recordCoreData.tracker = try trackerStore.trackerCoreData(with: record.trackerId)
+        try context.saveOrRollback()
     }
 
-    func removeRecord(_ record: TrackerRecord) {
+    func removeRecord(_ record: TrackerRecord) throws {
         let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(
             format: "%K == %@ AND %K == %@",
             #keyPath(TrackerRecordCoreData.trackerId), record.trackerId as CVarArg,
             #keyPath(TrackerRecordCoreData.date), record.date as CVarArg
         )
-        let matches = (try? context.fetch(request)) ?? []
-        matches.forEach(context.delete)
-        CoreDataStack.shared.saveContext()
+        try context.fetch(request).forEach(context.delete)
+        try context.saveOrRollback()
     }
 }
 

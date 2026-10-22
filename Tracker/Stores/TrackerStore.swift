@@ -17,27 +17,30 @@ final class TrackerStore: NSObject {
     weak var delegate: TrackerStoreDelegate?
 
     private let context: NSManagedObjectContext
+    private let fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
 
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
+        self.context = context
+
         let request = TrackerCoreData.fetchRequest()
         request.sortDescriptors = [
             NSSortDescriptor(key: "category.title", ascending: true),
             NSSortDescriptor(keyPath: \TrackerCoreData.createdAt, ascending: true)
         ]
-        let controller = NSFetchedResultsController(
+        fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: context,
             sectionNameKeyPath: "category.title",
             cacheName: nil
         )
-        controller.delegate = self
-        try? controller.performFetch()
-        return controller
-    }()
 
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
-        self.context = context
         super.init()
+        fetchedResultsController.delegate = self
+    }
+
+    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
+    func performFetch() throws {
+        try fetchedResultsController.performFetch()
     }
 
     /// Трекеры, сгруппированные по категориям, — по одной секции FRC на категорию.
@@ -48,8 +51,9 @@ final class TrackerStore: NSObject {
         }
     }
 
-    func addTracker(_ tracker: Tracker, toCategoryWithTitle categoryTitle: String) {
+    func addTracker(_ tracker: Tracker, toCategoryWithTitle categoryTitle: String) throws {
         let categoryStore = TrackerCategoryStore(context: context, trackerStore: self)
+        let category = try categoryStore.categoryCoreData(withTitle: categoryTitle)
 
         let trackerCoreData = TrackerCoreData(context: context)
         trackerCoreData.id = tracker.id
@@ -58,9 +62,9 @@ final class TrackerStore: NSObject {
         trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.schedule = Self.encode(tracker.schedule)
         trackerCoreData.createdAt = Date()
-        trackerCoreData.category = categoryStore.categoryCoreData(withTitle: categoryTitle)
+        trackerCoreData.category = category
 
-        CoreDataStack.shared.saveContext()
+        try context.saveOrRollback()
     }
 
     func makeTracker(from trackerCoreData: TrackerCoreData) -> Tracker? {
@@ -80,6 +84,15 @@ final class TrackerStore: NSObject {
         )
     }
 
+    /// Объект Core Data для трекера — нужен `TrackerRecordStore`, чтобы связать отметку с трекером.
+    func trackerCoreData(with id: UUID) throws -> TrackerCoreData? {
+        let request = TrackerCoreData.fetchRequest()
+        // `#keyPath(TrackerCoreData.id)` не собирается: имя `id` пересекается с NSObject.
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        return try context.fetch(request).first
+    }
+
     // MARK: Расписание
 
     /// Расписание хранится строкой из номеров дней: `"2,4,6"`.
@@ -90,11 +103,6 @@ final class TrackerStore: NSObject {
 
     private static func decode(_ string: String) -> [WeekDay] {
         string.split(separator: ",").compactMap { Int($0).flatMap(WeekDay.init(rawValue:)) }
-    }
-
-    /// Объект Core Data для трекера — нужен `TrackerRecordStore`, чтобы связать отметку с трекером.
-    func trackerCoreData(with id: UUID) -> TrackerCoreData? {
-        fetchedResultsController.fetchedObjects?.first { $0.id == id }
     }
 }
 

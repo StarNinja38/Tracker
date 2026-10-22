@@ -310,8 +310,12 @@ final class NewTrackerViewController: UIViewController {
             schedule: schedule
         )
 
-        onCreate?(tracker)
-        dismiss(animated: true)
+        // Трекер уходит на главный экран после закрытия шторки: если сохранение
+        // не удастся, алерт об ошибке будет показан уже поверх главного экрана.
+        let onCreate = onCreate
+        dismiss(animated: true) {
+            onCreate?(tracker)
+        }
     }
 }
 

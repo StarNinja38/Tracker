@@ -69,8 +69,7 @@ final class TrackersViewController: UIViewController {
 
         trackerStore.delegate = self
         trackerRecordStore.delegate = self
-        reloadCategories()
-        reloadRecords()
+        loadData()
     }
 
     // MARK: Вёрстка кодом
@@ -155,6 +154,19 @@ final class TrackersViewController: UIViewController {
 
     // MARK: Данные
 
+    /// Первое чтение из Core Data. Если база не прочиталась, вместо «Что будем
+    /// отслеживать?» пишем об ошибке — иначе сбой выглядел бы как пустой список.
+    private func loadData() {
+        do {
+            try trackerStore.performFetch()
+            try trackerRecordStore.performFetch()
+        } catch {
+            placeholderLabel.text = "Не удалось загрузить трекеры"
+        }
+        reloadCategories()
+        reloadRecords()
+    }
+
     private func reloadCategories() {
         categories = trackerStore.categories
         reloadVisibleCategories()
@@ -206,7 +218,17 @@ final class TrackersViewController: UIViewController {
     /// Новый трекер уходит в категорию по умолчанию. Экран обновится,
     /// когда `TrackerStore` сообщит об изменении в Core Data.
     private func addTracker(_ tracker: Tracker) {
-        trackerStore.addTracker(tracker, toCategoryWithTitle: Constants.defaultCategoryTitle)
+        do {
+            try trackerStore.addTracker(tracker, toCategoryWithTitle: Constants.defaultCategoryTitle)
+        } catch {
+            showError(message: "Не удалось сохранить трекер")
+        }
+    }
+
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func tracker(at indexPath: IndexPath) -> Tracker {
@@ -355,10 +377,14 @@ extension TrackersViewController: TrackerCellDelegate {
         let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
 
         // Экран перерисуется по сигналу `TrackerRecordStore`.
-        if completedRecords.contains(record) {
-            trackerRecordStore.removeRecord(record)
-        } else {
-            trackerRecordStore.addRecord(record)
+        do {
+            if completedRecords.contains(record) {
+                try trackerRecordStore.removeRecord(record)
+            } else {
+                try trackerRecordStore.addRecord(record)
+            }
+        } catch {
+            showError(message: "Не удалось сохранить отметку")
         }
     }
 }
