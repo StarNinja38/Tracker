@@ -11,4 +11,8 @@ struct Tracker {
     let emoji: String
     /// Пустое расписание = нерегулярное событие (задача со звёздочкой).
     let schedule: [WeekDay]
+
+    var isIrregular: Bool {
+        schedule.isEmpty
+    }
 }
