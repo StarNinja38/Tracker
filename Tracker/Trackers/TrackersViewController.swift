@@ -18,14 +18,19 @@ final class TrackersViewController: UIViewController {
     }
 
     private enum Constants {
-        /// Пока экран «Категория» не реализован (задание спринта 15),
+        /// Пока экран «Категория» не реализован (задание спринта 16),
         /// все новые трекеры складываем в одну категорию.
         static let defaultCategoryTitle = "Важное"
     }
 
+    // MARK: Хранение
+
+    private let trackerStore = TrackerStore()
+    private lazy var trackerRecordStore = TrackerRecordStore(trackerStore: trackerStore)
+
     // MARK: Данные
 
-    /// Все категории с трекерами — источник правды экрана.
+    /// Все категории с трекерами — копия того, что лежит в Core Data.
     var categories: [TrackerCategory] = []
 
     /// Записи о выполнении. Массив требуется заданием.
@@ -62,7 +67,10 @@ final class TrackersViewController: UIViewController {
         setupCollectionView()
         setupPlaceholder()
 
-        reloadVisibleCategories()
+        trackerStore.delegate = self
+        trackerRecordStore.delegate = self
+        reloadCategories()
+        reloadRecords()
     }
 
     // MARK: Вёрстка кодом
@@ -147,6 +155,17 @@ final class TrackersViewController: UIViewController {
 
     // MARK: Данные
 
+    private func reloadCategories() {
+        categories = trackerStore.categories
+        reloadVisibleCategories()
+    }
+
+    private func reloadRecords() {
+        completedTrackers = trackerRecordStore.records
+        completedRecords = Set(completedTrackers)
+        reloadVisibleCategories()
+    }
+
     /// Пересобирает список категорий под выбранный день и обновляет экран.
     private func reloadVisibleCategories() {
         guard let weekDay = WeekDay.from(date: currentDate) else {
@@ -156,11 +175,24 @@ final class TrackersViewController: UIViewController {
         }
 
         visibleCategories = categories.compactMap { category in
-            let trackers = category.trackers.filter { $0.schedule.contains(weekDay) }
+            let trackers = category.trackers.filter { isVisible($0, weekDay: weekDay) }
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
 
         updateUI()
+    }
+
+    /// Привычка видна в дни из расписания. Нерегулярное событие к дням не привязано:
+    /// пока оно не выполнено, показываем его в любой день, а после выполнения —
+    /// только в тот день, когда его отметили.
+    private func isVisible(_ tracker: Tracker, weekDay: WeekDay) -> Bool {
+        guard tracker.isIrregular else {
+            return tracker.schedule.contains(weekDay)
+        }
+        let completedDates = completedTrackers
+            .filter { $0.trackerId == tracker.id }
+            .map(\.date)
+        return completedDates.isEmpty || completedDates.contains(currentDate.startOfDay)
     }
 
     private func updateUI() {
@@ -171,27 +203,10 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    /// Новый трекер уходит в категорию по умолчанию.
-    /// Массивы не мутируем — собираем новые, как требует задание.
+    /// Новый трекер уходит в категорию по умолчанию. Экран обновится,
+    /// когда `TrackerStore` сообщит об изменении в Core Data.
     private func addTracker(_ tracker: Tracker) {
-        var updated: [TrackerCategory] = []
-        var inserted = false
-
-        for category in categories {
-            if category.title == Constants.defaultCategoryTitle {
-                updated.append(TrackerCategory(title: category.title, trackers: category.trackers + [tracker]))
-                inserted = true
-            } else {
-                updated.append(category)
-            }
-        }
-
-        if !inserted {
-            updated.append(TrackerCategory(title: Constants.defaultCategoryTitle, trackers: [tracker]))
-        }
-
-        categories = updated
-        reloadVisibleCategories()
+        trackerStore.addTracker(tracker, toCategoryWithTitle: Constants.defaultCategoryTitle)
     }
 
     private func tracker(at indexPath: IndexPath) -> Tracker {
@@ -210,13 +225,12 @@ final class TrackersViewController: UIViewController {
     // MARK: Действия
 
     @objc private func didTapAddTracker() {
-        // По заданию спринта 14 кнопка «+» сразу открывает создание привычки:
-        // экран выбора типа трекера — задание со звёздочкой.
-        let newHabit = NewHabitViewController()
-        newHabit.onCreate = { [weak self] tracker in
+        // «+» открывает шторку выбора: привычка или нерегулярное событие.
+        let trackerType = TrackerTypeViewController()
+        trackerType.onCreate = { [weak self] tracker in
             self?.addTracker(tracker)
         }
-        let navigationController = UINavigationController(rootViewController: newHabit)
+        let navigationController = UINavigationController(rootViewController: trackerType)
         present(navigationController, animated: true)
     }
 
@@ -340,15 +354,30 @@ extension TrackersViewController: TrackerCellDelegate {
         let tracker = tracker(at: indexPath)
         let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
 
+        // Экран перерисуется по сигналу `TrackerRecordStore`.
         if completedRecords.contains(record) {
-            completedRecords.remove(record)
-            completedTrackers.removeAll { $0 == record }
+            trackerRecordStore.removeRecord(record)
         } else {
-            completedRecords.insert(record)
-            completedTrackers.append(record)
+            trackerRecordStore.addRecord(record)
         }
+    }
+}
 
-        collectionView.reloadItems(at: [indexPath])
+// MARK: - TrackerStoreDelegate
+
+extension TrackersViewController: TrackerStoreDelegate {
+
+    func trackerStoreDidUpdate(_ store: TrackerStore) {
+        reloadCategories()
+    }
+}
+
+// MARK: - TrackerRecordStoreDelegate
+
+extension TrackersViewController: TrackerRecordStoreDelegate {
+
+    func trackerRecordStoreDidUpdate(_ store: TrackerRecordStore) {
+        reloadRecords()
     }
 }
 
