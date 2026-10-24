@@ -2,9 +2,7 @@ import UIKit
 
 // MARK: - OnboardingPageViewController
 
-/// Одна страница онбординга: фон + заголовок.
-/// ⚠️ Фоновая картинка из Figma не подключена — вместо неё сплошной цвет.
-/// Положи ассеты в Assets.xcassets и передай их имена в `backgroundImageName`.
+/// Одна страница онбординга: фон на весь экран и заголовок.
 final class OnboardingPageViewController: UIViewController {
 
     private enum Layout {
@@ -15,14 +13,10 @@ final class OnboardingPageViewController: UIViewController {
     private let titleLabel = UILabel()
     private let backgroundImageView = UIImageView()
 
-    private let titleText: String
-    private let placeholderColor: UIColor
-    private let backgroundImageName: String?
+    private let page: OnboardingPage
 
-    init(titleText: String, placeholderColor: UIColor, backgroundImageName: String? = nil) {
-        self.titleText = titleText
-        self.placeholderColor = placeholderColor
-        self.backgroundImageName = backgroundImageName
+    init(page: OnboardingPage) {
+        self.page = page
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -37,13 +31,9 @@ final class OnboardingPageViewController: UIViewController {
     }
 
     private func setupBackground() {
+        backgroundImageView.image = UIImage(named: page.backgroundImageName)
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
-        if let backgroundImageName, let image = UIImage(named: backgroundImageName) {
-            backgroundImageView.image = image
-        } else {
-            backgroundImageView.backgroundColor = placeholderColor
-        }
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(backgroundImageView)
         NSLayoutConstraint.activate([
@@ -54,10 +44,11 @@ final class OnboardingPageViewController: UIViewController {
         ])
     }
 
+    /// Заголовок чёрный в обеих темах: фон-картинка всегда светлая.
     private func setupTitle() {
-        titleLabel.text = titleText
+        titleLabel.text = page.title
         titleLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        titleLabel.textColor = UIColor(named: "YP Black")
+        titleLabel.textColor = .black
         titleLabel.textAlignment = .center
         titleLabel.numberOfLines = 0
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
