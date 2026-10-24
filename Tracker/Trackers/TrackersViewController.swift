@@ -2,9 +2,6 @@ import UIKit
 
 // MARK: - TrackersViewController
 
-/// Главный экран «Трекеры»: коллекция карточек, сгруппированных по категориям,
-/// с выбором даты в правом `NavBarItem` и кнопкой добавления в левом.
-/// Данные и фильтрация по дню — в `TrackersViewModel`.
 final class TrackersViewController: UIViewController {
 
     private enum Layout {
@@ -21,8 +18,6 @@ final class TrackersViewController: UIViewController {
     private let viewModel: TrackersViewModel
 
     private var visibleCategories: [TrackerCategory] = []
-
-    // MARK: UI
 
     private let datePicker = UIDatePicker()
     private let searchController = UISearchController(searchResultsController: nil)
@@ -42,8 +37,6 @@ final class TrackersViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Жизненный цикл
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(named: "YP White")
@@ -54,8 +47,6 @@ final class TrackersViewController: UIViewController {
         bind()
         viewModel.loadData()
     }
-
-    // MARK: Байндинги
 
     private func bind() {
         viewModel.onVisibleCategoriesChange = { [weak self] categories in
@@ -84,14 +75,11 @@ final class TrackersViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    // MARK: Вёрстка кодом
-
     private func setupNavigationBar() {
         title = "Трекеры"
         navigationController?.navigationBar.prefersLargeTitles = true
 
-        // Кнопка собрана вручную: системный UIBarButtonItem на свежих iOS
-        // рисует круглую подложку, а в макете «+» без неё.
+        // обычный UIBarButtonItem рисует круглый фон, а в макете его нет
         let addButton = UIButton(type: .system)
         addButton.setImage(
             UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .bold)),
@@ -109,8 +97,7 @@ final class TrackersViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
 
-        // Поле поиска есть в макете главного экрана. Фильтрация — задание
-        // следующего спринта, поэтому поле пока не меняет выдачу.
+        // TODO: поиск сделаю в следующем спринте
         searchController.searchBar.placeholder = "Поиск"
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
@@ -161,10 +148,7 @@ final class TrackersViewController: UIViewController {
         ])
     }
 
-    // MARK: Действия
-
     @objc private func didTapAddTracker() {
-        // «+» открывает шторку выбора: привычка или нерегулярное событие.
         let trackerType = TrackerTypeViewController()
         trackerType.onCreate = { [weak self] tracker, categoryTitle in
             self?.viewModel.addTracker(tracker, toCategoryWithTitle: categoryTitle)
@@ -243,7 +227,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        // Две карточки в ряд: ширина делится пополам за вычетом отступов.
+        // две карточки в ряд
         let availableWidth = collectionView.bounds.width - Layout.sideInset * 2 - Layout.interitemSpacing
         return CGSize(width: availableWidth / 2, height: Layout.cellHeight)
     }

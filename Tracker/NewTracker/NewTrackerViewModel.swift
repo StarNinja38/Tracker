@@ -2,8 +2,6 @@ import UIKit
 
 // MARK: - NewTrackerOptionViewModel
 
-/// Строка-кнопка под полем названия: «Категория» или «Расписание»
-/// и выбранное значение вторичным текстом.
 struct NewTrackerOptionViewModel {
     let title: String
     let subtitle: String?
@@ -11,8 +9,6 @@ struct NewTrackerOptionViewModel {
 
 // MARK: - NewTrackerViewModel
 
-/// Вьюмодель создания привычки или нерегулярного события: хранит всё,
-/// что выбрал пользователь, решает, доступна ли «Создать», и собирает `Tracker`.
 final class NewTrackerViewModel {
 
     enum Option {
@@ -31,12 +27,10 @@ final class NewTrackerViewModel {
         static let titleLimit = 38
     }
 
-    /// «Создать» доступна, когда заполнены все разделы.
     var onCreateAllowedStateChange: Binding<Bool>?
-    /// Поменялась категория или расписание — нужно перерисовать строки под полем.
     var onOptionsChange: Binding<[NewTrackerOptionViewModel]>?
 
-    /// 18 эмодзи и 18 цветов из макета Figma.
+    // 18 эмодзи и 18 цветов как в фигме
     let emojis = [
         "🙂", "😻", "🌺", "🐶", "❤️", "😱",
         "😇", "😡", "🥶", "🤔", "🙌", "🍔",
@@ -55,7 +49,6 @@ final class NewTrackerViewModel {
     private var selectedCategory: String?
     private var selectedSchedule: [WeekDay] = []
 
-    /// У нерегулярного события нет раздела «Расписание», в остальном экраны одинаковые.
     init(type: TrackerType) {
         self.type = type
         screenTitle = type.screenTitle
@@ -65,7 +58,6 @@ final class NewTrackerViewModel {
         }
     }
 
-    /// Вызывается из `bind()`, чтобы вью сразу получила начальное состояние.
     func start() {
         updateCreateAllowedState()
     }
@@ -74,9 +66,6 @@ final class NewTrackerViewModel {
         options.map { NewTrackerOptionViewModel(title: $0.title, subtitle: subtitle(for: $0)) }
     }
 
-    // MARK: Ввод
-
-    /// Не даёт ввести больше 38 символов.
     func canChangeTitle(to text: String) -> Bool {
         text.count <= Constants.titleLimit
     }
@@ -98,8 +87,6 @@ final class NewTrackerViewModel {
         updateCreateAllowedState()
     }
 
-    // MARK: Вложенные экраны
-
     func makeCategoryListViewModel() -> CategoryListViewModel {
         let viewModel = CategoryListViewModel(selectedTitle: selectedCategory)
         viewModel.onSelectionChange = { [weak self] title in
@@ -118,9 +105,6 @@ final class NewTrackerViewModel {
         return viewModel
     }
 
-    // MARK: Создание
-
-    /// Готовый трекер и его категория; `nil`, если заполнено не всё.
     func makeTracker() -> (tracker: Tracker, categoryTitle: String)? {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
         guard
@@ -131,7 +115,7 @@ final class NewTrackerViewModel {
             let categoryTitle = selectedCategory
         else { return nil }
 
-        // Пустое расписание — признак нерегулярного события.
+        // у нерегулярного события расписание пустое
         let tracker = Tracker(
             id: UUID(),
             title: trimmedTitle,
@@ -142,9 +126,6 @@ final class NewTrackerViewModel {
         return (tracker, categoryTitle)
     }
 
-    // MARK: Состояние
-
-    /// Название, категория, эмодзи, цвет и — только у привычки — хотя бы один день расписания.
     private var isCreateAllowed: Bool {
         let hasTitle = !title.trimmingCharacters(in: .whitespaces).isEmpty
         let hasSchedule = type == .irregularEvent || !selectedSchedule.isEmpty

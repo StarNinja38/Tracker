@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - CategoryFormViewController
 
-/// Экран с полем для названия категории и кнопкой «Готово».
 final class CategoryFormViewController: UIViewController {
 
     private enum Layout {
@@ -49,8 +48,6 @@ final class CategoryFormViewController: UIViewController {
         titleTextField.becomeFirstResponder()
     }
 
-    // MARK: Байндинги
-
     private func bind() {
         viewModel.onDoneAllowedStateChange = { [weak self] isAllowed in
             self?.setDoneButton(enabled: isAllowed)
@@ -69,8 +66,6 @@ final class CategoryFormViewController: UIViewController {
         doneButton.isEnabled = enabled
         doneButton.backgroundColor = UIColor(named: enabled ? "YP Black" : "YP Gray")
     }
-
-    // MARK: Вёрстка кодом
 
     private func setupTextField() {
         titleTextField.text = viewModel.initialText
@@ -125,7 +120,7 @@ final class CategoryFormViewController: UIViewController {
         NSLayoutConstraint.activate([
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Layout.buttonSideInset),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Layout.buttonSideInset),
-            // Без клавиатуры гайд совпадает с низом safe area, с клавиатурой — поднимает кнопку над ней.
+            // кнопка поднимается над клавиатурой
             doneButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -Layout.buttonBottomInset),
             doneButton.heightAnchor.constraint(equalToConstant: Layout.buttonHeight)
         ])
@@ -137,8 +132,6 @@ final class CategoryFormViewController: UIViewController {
         tap.delegate = self
         view.addGestureRecognizer(tap)
     }
-
-    // MARK: Действия
 
     @objc private func titleChanged() {
         viewModel.didChangeTitle(titleTextField.text ?? "")
@@ -158,8 +151,7 @@ final class CategoryFormViewController: UIViewController {
 
 extension CategoryFormViewController: UIGestureRecognizerDelegate {
 
-    /// Тап по кнопке не должен прятать клавиатуру: «Готово» привязана к ней
-    /// и уехала бы вниз раньше, чем палец отпустит кнопку.
+    // без этого тап по Готово сначала прячет клавиатуру, кнопка уезжает вниз и нажатие теряется
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         !(touch.view is UIControl)
     }

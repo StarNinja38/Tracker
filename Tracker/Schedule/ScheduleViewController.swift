@@ -2,8 +2,6 @@ import UIKit
 
 // MARK: - ScheduleViewController
 
-/// Экран «Расписание»: список дней недели с переключателями и кнопка «Готово».
-/// Выбор дней хранит `ScheduleViewModel`.
 final class ScheduleViewController: UIViewController {
 
     private enum Layout {

@@ -2,7 +2,6 @@ import Foundation
 
 // MARK: - CategoryCellViewModel
 
-/// Данные одной строки списка категорий.
 struct CategoryCellViewModel {
     let title: String
     let isSelected: Bool
@@ -10,16 +9,10 @@ struct CategoryCellViewModel {
 
 // MARK: - CategoryListViewModel
 
-/// Вьюмодель экрана «Категория». Берёт категории из `TrackerCategoryStore`,
-/// готовит строки для таблицы и обрабатывает выбор. О Core Data не знает.
 final class CategoryListViewModel {
 
-    /// Список категорий изменился — таблицу нужно перерисовать.
     var onCategoriesChange: Binding<[CategoryCellViewModel]>?
-    /// Текст ошибки чтения или сохранения; `nil` — ошибки нет.
     var onErrorStateChange: Binding<String?>?
-    /// Выбранная категория изменилась: её выбрали, переименовали или удалили (`nil`).
-    /// Экран создания трекера показывает её под «Категория».
     var onSelectionChange: Binding<String?>?
 
     private(set) var categories: [CategoryCellViewModel] = [] {
@@ -72,8 +65,6 @@ final class CategoryListViewModel {
         }
     }
 
-    /// Вьюмодель экрана «Новая категория» работает с тем же стором:
-    /// новая категория появится в списке по сигналу `NSFetchedResultsController`.
     func makeNewCategoryViewModel() -> CategoryFormViewModel {
         CategoryFormViewModel(mode: .create, store: store)
     }

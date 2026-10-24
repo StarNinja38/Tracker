@@ -2,9 +2,7 @@ import Foundation
 
 // MARK: - WeekDay
 
-/// Дни недели для расписания привычки.
-/// `rawValue` совпадает с номером дня в `Calendar` (1 — воскресенье), чтобы
-/// сопоставление с датой из `UIDatePicker` было прямым, без таблиц перевода.
+// rawValue как в Calendar, 1 это воскресенье
 enum WeekDay: Int, CaseIterable {
     case sunday = 1
     case monday
@@ -14,7 +12,7 @@ enum WeekDay: Int, CaseIterable {
     case friday
     case saturday
 
-    /// Порядок отображения — с понедельника, как в макете.
+    // в макете неделя начинается с понедельника
     static let displayOrder: [WeekDay] = [
         .monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday
     ]
@@ -43,7 +41,6 @@ enum WeekDay: Int, CaseIterable {
         }
     }
 
-    /// День недели, на который приходится дата.
     static func from(date: Date, calendar: Calendar = .current) -> WeekDay? {
         WeekDay(rawValue: calendar.component(.weekday, from: date))
     }

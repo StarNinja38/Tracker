@@ -2,10 +2,6 @@ import UIKit
 
 // MARK: - CategoryListViewController
 
-/// Экран «Категория»: список категорий с галочкой у выбранной, заглушка
-/// для пустого списка и кнопка «Добавить категорию». По долгому нажатию
-/// категорию можно отредактировать или удалить. Вся логика — во вьюмодели,
-/// вью только показывает её состояние и передаёт действия пользователя.
 final class CategoryListViewController: UIViewController {
 
     private enum Layout {
@@ -49,8 +45,6 @@ final class CategoryListViewController: UIViewController {
         viewModel.loadCategories()
     }
 
-    // MARK: Байндинги
-
     private func bind() {
         viewModel.onCategoriesChange = { [weak self] _ in
             self?.updateUI()
@@ -74,8 +68,6 @@ final class CategoryListViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
-
-    // MARK: Вёрстка кодом
 
     private func setupAddButton() {
         addButton.setTitle("Добавить категорию", for: .normal)
@@ -141,8 +133,6 @@ final class CategoryListViewController: UIViewController {
         ])
     }
 
-    // MARK: Действия
-
     @objc private func didTapAddCategory() {
         let form = CategoryFormViewController(viewModel: viewModel.makeNewCategoryViewModel())
         navigationController?.pushViewController(form, animated: true)
@@ -153,7 +143,6 @@ final class CategoryListViewController: UIViewController {
         navigationController?.pushViewController(CategoryFormViewController(viewModel: formViewModel), animated: true)
     }
 
-    /// Удаление подтверждается через action sheet.
     private func confirmDeleteCategory(at index: Int) {
         let alert = UIAlertController(
             title: nil,
@@ -192,8 +181,7 @@ extension CategoryListViewController: UITableViewDataSource {
 
 extension CategoryListViewController: UITableViewDelegate {
 
-    /// Список выглядит одним блоком: скругляем верх первой строки и низ последней,
-    /// под последней разделитель не нужен.
+    // скругляю первую и последнюю ячейку, у последней убираю разделитель
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let isFirst = indexPath.row == 0
         let isLast = indexPath.row == viewModel.categories.count - 1
@@ -215,7 +203,6 @@ extension CategoryListViewController: UITableViewDelegate {
         navigationController?.popViewController(animated: true)
     }
 
-    /// Долгое нажатие: фон размывается, появляется меню «Редактировать» / «Удалить».
     func tableView(
         _ tableView: UITableView,
         contextMenuConfigurationForRowAt indexPath: IndexPath,

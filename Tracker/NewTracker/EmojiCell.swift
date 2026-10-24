@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - EmojiCell
 
-/// Эмодзи в сетке выбора. Выбранная получает серую подложку.
 final class EmojiCell: UICollectionViewCell {
 
     static let reuseIdentifier = "EmojiCell"

@@ -2,10 +2,8 @@ import Foundation
 
 // MARK: - ScheduleViewModel
 
-/// Вьюмодель экрана «Расписание»: какие дни включены и что вернуть по «Готово».
 final class ScheduleViewModel {
 
-    /// Пользователь нажал «Готово» — выбранные дни уходят на экран создания привычки.
     var onDone: Binding<[WeekDay]>?
 
     let days = WeekDay.displayOrder

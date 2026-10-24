@@ -2,7 +2,6 @@ import Foundation
 
 // MARK: - OnboardingPage
 
-/// Одна страница онбординга: заголовок и фон из Figma.
 struct OnboardingPage {
     let title: String
     let backgroundImageName: String
@@ -10,7 +9,6 @@ struct OnboardingPage {
 
 // MARK: - OnboardingStorage
 
-/// Помнит, что онбординг уже показан, — при следующем запуске его не будет.
 struct OnboardingStorage {
 
     private enum Keys {
@@ -31,13 +29,9 @@ struct OnboardingStorage {
 
 // MARK: - OnboardingViewModel
 
-/// Вьюмодель онбординга: список страниц, текущая страница для `UIPageControl`
-/// и завершение по кнопке «Вот это технологии!».
 final class OnboardingViewModel {
 
-    /// Сменилась текущая страница — нужно обновить `UIPageControl`.
     var onPageChange: Binding<Int>?
-    /// Онбординг пройден — пора показать главный экран.
     var onFinish: (() -> Void)?
 
     let pages = [
@@ -53,7 +47,7 @@ final class OnboardingViewModel {
         self.storage = storage
     }
 
-    /// Листание зациклено, как в макете: со второй страницы вперёд — снова на первую.
+    // листаем по кругу как в макете
     func indexBefore(_ index: Int) -> Int {
         (index - 1 + pages.count) % pages.count
     }

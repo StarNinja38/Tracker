@@ -19,7 +19,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
     }
 
-    /// Онбординг показывается один раз — при первом запуске.
+    // онбординг показываем только при первом запуске
     private func makeRootViewController() -> UIViewController {
         guard onboardingStorage.isOnboardingShown else {
             let viewModel = OnboardingViewModel(storage: onboardingStorage)

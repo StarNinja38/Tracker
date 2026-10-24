@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - ScheduleCell
 
-/// Строка расписания: название дня недели и `UISwitch`.
 final class ScheduleCell: UITableViewCell {
 
     static let reuseIdentifier = "ScheduleCell"

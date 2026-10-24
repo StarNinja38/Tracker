@@ -8,8 +8,6 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
 
 // MARK: - TrackerCategoryStore
 
-/// Слой хранения категорий. Наружу отдаёт только модели `TrackerCategory`,
-/// объекты Core Data остаются внутри слоя.
 final class TrackerCategoryStore: NSObject {
 
     weak var delegate: TrackerCategoryStoreDelegate?
@@ -35,7 +33,6 @@ final class TrackerCategoryStore: NSObject {
         fetchedResultsController.delegate = self
     }
 
-    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
     func performFetch() throws {
         try fetchedResultsController.performFetch()
     }
@@ -44,7 +41,6 @@ final class TrackerCategoryStore: NSObject {
         (fetchedResultsController.fetchedObjects ?? []).map(makeCategory)
     }
 
-    /// Названия категорий для экрана выбора — трекеры внутри ему не нужны.
     var categoryTitles: [String] {
         (fetchedResultsController.fetchedObjects ?? []).compactMap(\.title)
     }
@@ -61,14 +57,14 @@ final class TrackerCategoryStore: NSObject {
         try context.saveOrRollback()
     }
 
-    /// Трекеры категории и их отметки удаляются вместе с ней (Cascade в модели).
+    // трекеры и записи удалятся вместе с категорией, в модели стоит Cascade
     func deleteCategory(_ title: String) throws {
         guard let category = try fetchCategory(withTitle: title) else { return }
         context.delete(category)
         try context.saveOrRollback()
     }
 
-    /// Возвращает категорию с таким названием, а если её нет — создаёт.
+    // если такой категории нет, создаем новую
     func categoryCoreData(withTitle title: String) throws -> TrackerCategoryCoreData {
         if let existing = try fetchCategory(withTitle: title) {
             return existing

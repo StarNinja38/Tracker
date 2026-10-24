@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - TrackerCategoryHeaderView
 
-/// Заголовок секции — название категории.
 final class TrackerCategoryHeaderView: UICollectionReusableView {
 
     static let reuseIdentifier = "TrackerCategoryHeaderView"

@@ -2,7 +2,6 @@ import Foundation
 
 // MARK: - CategoryFormViewModel
 
-/// Вьюмодель экрана с полем для названия категории.
 final class CategoryFormViewModel {
 
     enum Mode {
@@ -14,14 +13,9 @@ final class CategoryFormViewModel {
         static let titleLimit = 38
     }
 
-    /// «Готово» доступна, когда введён хотя бы один символ и такой категории ещё нет.
     var onDoneAllowedStateChange: Binding<Bool>?
-    /// Текст ошибки под полем; `nil` — ошибки нет.
     var onErrorStateChange: Binding<String?>?
-    /// Категория сохранена — экран можно закрывать.
     var onFinish: (() -> Void)?
-    /// Категорию переименовали: старое и новое название. Нужен списку,
-    /// чтобы галочка осталась на переименованной категории.
     var onCategoryRename: Binding<(old: String, new: String)>?
 
     let screenTitle: String
@@ -47,12 +41,10 @@ final class CategoryFormViewModel {
         title = initialText
     }
 
-    /// Вызывается из `bind()`, чтобы вью сразу получила начальное состояние.
     func start() {
         validate()
     }
 
-    /// Не даёт ввести больше 38 символов.
     func canChangeTitle(to text: String) -> Bool {
         text.count <= Constants.titleLimit
     }
@@ -81,8 +73,6 @@ final class CategoryFormViewModel {
         }
     }
 
-    // MARK: Проверка
-
     private var trimmedTitle: String {
         title.trimmingCharacters(in: .whitespaces)
     }
@@ -97,7 +87,7 @@ final class CategoryFormViewModel {
         !title.isEmpty && !isDuplicate(title)
     }
 
-    /// При редактировании своё же название дубликатом не считается.
+    // при редактировании старое название дублем не считается
     private func isDuplicate(_ title: String) -> Bool {
         if case .edit(let oldTitle) = mode, title == oldTitle { return false }
         return store.categoryTitles.contains(title)

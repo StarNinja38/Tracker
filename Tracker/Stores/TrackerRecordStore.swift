@@ -8,7 +8,6 @@ protocol TrackerRecordStoreDelegate: AnyObject {
 
 // MARK: - TrackerRecordStore
 
-/// Слой хранения отметок о выполнении.
 final class TrackerRecordStore: NSObject {
 
     weak var delegate: TrackerRecordStoreDelegate?
@@ -34,7 +33,6 @@ final class TrackerRecordStore: NSObject {
         fetchedResultsController.delegate = self
     }
 
-    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
     func performFetch() throws {
         try fetchedResultsController.performFetch()
     }

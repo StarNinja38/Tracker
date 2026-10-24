@@ -8,8 +8,6 @@ protocol TrackerCellDelegate: AnyObject {
 
 // MARK: - TrackerCell
 
-/// Карточка трекера: цветной прямоугольник с эмодзи и названием,
-/// под ним счётчик дней и кнопка отметки выполнения.
 final class TrackerCell: UICollectionViewCell {
 
     static let reuseIdentifier = "TrackerCell"
@@ -48,8 +46,6 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Конфигурация
-
     func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isEnabled: Bool) {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
@@ -60,12 +56,11 @@ final class TrackerCell: UICollectionViewCell {
         plusButton.setImage(UIImage(systemName: symbolName), for: .normal)
         plusButton.backgroundColor = tracker.color
         plusButton.alpha = isCompleted ? 0.3 : 1
-        // Кнопка недоступна для будущих дат — отметить наперёд нельзя.
         plusButton.isEnabled = isEnabled
         plusButton.accessibilityIdentifier = isCompleted ? "tracker done" : "tracker undone"
     }
 
-    /// «5 дней» / «1 день» / «2 дня» — склонение по правилам русского языка.
+    // склонение: 1 день, 2 дня, 5 дней
     static func daysText(_ count: Int) -> String {
         let remainder100 = count % 100
         let remainder10 = count % 10
@@ -81,8 +76,6 @@ final class TrackerCell: UICollectionViewCell {
         }
         return "\(count) \(word)"
     }
-
-    // MARK: Вёрстка кодом
 
     private func setupCard() {
         cardView.layer.cornerRadius = Layout.cardCornerRadius

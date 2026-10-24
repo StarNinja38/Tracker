@@ -2,7 +2,6 @@ import Foundation
 
 // MARK: - TrackerCellViewModel
 
-/// Всё, что нужно карточке трекера на выбранную дату.
 struct TrackerCellViewModel {
     let tracker: Tracker
     let isCompleted: Bool
@@ -12,8 +11,6 @@ struct TrackerCellViewModel {
 
 // MARK: - TrackersViewModel
 
-/// Вьюмодель главного экрана: читает трекеры, категории и отметки из сторов,
-/// фильтрует их под выбранный день и отмечает выполнение. О Core Data не знает.
 final class TrackersViewModel {
 
     private enum Text {
@@ -21,27 +18,20 @@ final class TrackersViewModel {
         static let loadError = "Не удалось загрузить трекеры"
     }
 
-    /// Поменялись категории, попадающие в выбранный день, — коллекцию нужно перерисовать.
     var onVisibleCategoriesChange: Binding<[TrackerCategory]>?
-    /// Текст заглушки; `nil` — трекеры есть и заглушку нужно спрятать.
     var onPlaceholderChange: Binding<String?>?
-    /// Сохранение не удалось — показать алерт.
     var onErrorStateChange: Binding<String>?
 
-    /// Все категории с трекерами — копия того, что лежит в Core Data.
     private(set) var categories: [TrackerCategory] = []
 
-    /// Записи о выполнении. Массив требуется заданием.
+    // массив нужен по заданию
     private(set) var completedTrackers: [TrackerRecord] = []
 
-    /// Дата, выбранная в `UIDatePicker`.
     private(set) var currentDate = Date()
 
-    /// Категории, попадающие в выбранный день.
     private(set) var visibleCategories: [TrackerCategory] = []
 
-    /// Дубль записей в `Set` — чтобы проверять выполненность за O(1),
-    /// а не линейным поиском по массиву.
+    // в Set чтобы быстро проверять, выполнен ли трекер
     private var completedRecords: Set<TrackerRecord> = []
     private var isLoadFailed = false
 
@@ -59,10 +49,7 @@ final class TrackersViewModel {
         trackerCategoryStore.delegate = self
     }
 
-    // MARK: Загрузка
-
-    /// Первое чтение из Core Data. Если база не прочиталась, вместо «Что будем
-    /// отслеживать?» пишем об ошибке — иначе сбой выглядел бы как пустой список.
+    // если база не загрузилась, показываю ошибку, а не пустую заглушку
     func loadData() {
         do {
             try trackerStore.performFetch()
@@ -76,15 +63,11 @@ final class TrackersViewModel {
         reloadRecords()
     }
 
-    // MARK: Действия
-
     func didChangeDate(_ date: Date) {
         currentDate = date
         reloadVisibleCategories()
     }
 
-    /// Трекер уходит в выбранную категорию. Экран обновится,
-    /// когда `TrackerStore` сообщит об изменении в Core Data.
     func addTracker(_ tracker: Tracker, toCategoryWithTitle categoryTitle: String) {
         do {
             try trackerStore.addTracker(tracker, toCategoryWithTitle: categoryTitle)
@@ -93,13 +76,11 @@ final class TrackersViewModel {
         }
     }
 
-    /// Отмечает трекер выполненным в выбранный день или снимает отметку.
-    /// Отметить трекер для будущей даты нельзя.
+    // на будущую дату отмечать нельзя
     func didTapComplete(at indexPath: IndexPath) {
         guard isCurrentDateEditable, let tracker = tracker(at: indexPath) else { return }
         let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
 
-        // Экран перерисуется по сигналу `TrackerRecordStore`.
         do {
             if completedRecords.contains(record) {
                 try trackerRecordStore.removeRecord(record)
@@ -110,8 +91,6 @@ final class TrackersViewModel {
             onErrorStateChange?("Не удалось сохранить отметку")
         }
     }
-
-    // MARK: Данные для коллекции
 
     func cellViewModel(at indexPath: IndexPath) -> TrackerCellViewModel? {
         guard let tracker = tracker(at: indexPath) else { return nil }
@@ -135,8 +114,6 @@ final class TrackersViewModel {
         return visibleCategories[indexPath.section].trackers[indexPath.item]
     }
 
-    // MARK: Пересборка
-
     private func reloadCategories() {
         categories = trackerStore.categories
         reloadVisibleCategories()
@@ -148,7 +125,6 @@ final class TrackersViewModel {
         reloadVisibleCategories()
     }
 
-    /// Пересобирает список категорий под выбранный день и сообщает вью.
     private func reloadVisibleCategories() {
         if let weekDay = WeekDay.from(date: currentDate) {
             visibleCategories = categories.compactMap { category in
@@ -164,9 +140,7 @@ final class TrackersViewModel {
         onPlaceholderChange?(visibleCategories.isEmpty ? placeholder : nil)
     }
 
-    /// Привычка видна в дни из расписания. Нерегулярное событие к дням не привязано:
-    /// пока оно не выполнено, показываем его в любой день, а после выполнения —
-    /// только в тот день, когда его отметили.
+    // нерегулярное событие видно каждый день, пока не выполнено, потом только в день выполнения
     private func isVisible(_ tracker: Tracker, weekDay: WeekDay) -> Bool {
         guard tracker.isIrregular else {
             return tracker.schedule.contains(weekDay)
@@ -200,8 +174,7 @@ extension TrackersViewModel: TrackerRecordStoreDelegate {
 
 extension TrackersViewModel: TrackerCategoryStoreDelegate {
 
-    /// Секции `TrackerStore` построены по названию категории, а переименование
-    /// категории сами трекеры не меняет. Поэтому перечитываем трекеры заново.
+    // после переименования категории FRC трекеров сам не обновится, поэтому перезапрашиваю
     func trackerCategoryStoreDidUpdate(_ store: TrackerCategoryStore) {
         do {
             try trackerStore.performFetch()
@@ -215,7 +188,7 @@ extension TrackersViewModel: TrackerCategoryStoreDelegate {
 // MARK: - Date
 
 extension Date {
-    /// Полночь этого дня — записи о выполнении сравниваем по дню, не по времени.
+    // записи сравниваю только по дню, без времени
     var startOfDay: Date {
         Calendar.current.startOfDay(for: self)
     }

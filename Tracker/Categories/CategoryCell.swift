@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - CategoryCell
 
-/// Строка списка категорий: название и синяя галочка у выбранной.
 final class CategoryCell: UITableViewCell {
 
     static let reuseIdentifier = "CategoryCell"

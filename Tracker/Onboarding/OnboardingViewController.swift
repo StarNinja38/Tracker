@@ -2,8 +2,6 @@ import UIKit
 
 // MARK: - OnboardingViewController
 
-/// Онбординг из двух страниц: свайп между ними, `UIPageControl` и кнопка перехода в приложение.
-/// Какие страницы показывать и что делать по кнопке, решает `OnboardingViewModel`.
 final class OnboardingViewController: UIPageViewController {
 
     private enum Layout {
@@ -44,17 +42,12 @@ final class OnboardingViewController: UIPageViewController {
         bind()
     }
 
-    // MARK: Байндинги
-
     private func bind() {
         viewModel.onPageChange = { [weak self] index in
             self?.pageControl.currentPage = index
         }
     }
 
-    // MARK: Вёрстка кодом
-
-    /// Онбординг одинаковый в светлой и тёмной теме — цвета не меняются.
     private func setupPageControl() {
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0

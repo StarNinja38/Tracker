@@ -9,9 +9,6 @@ protocol TrackerStoreDelegate: AnyObject {
 
 // MARK: - TrackerStore
 
-/// Слой хранения трекеров. `NSFetchedResultsController` следит за изменениями
-/// в Core Data и сообщает о них делегату, а наружу уходят готовые категории
-/// с трекерами — экран о Core Data не знает.
 final class TrackerStore: NSObject {
 
     weak var delegate: TrackerStoreDelegate?
@@ -38,12 +35,10 @@ final class TrackerStore: NSObject {
         fetchedResultsController.delegate = self
     }
 
-    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
     func performFetch() throws {
         try fetchedResultsController.performFetch()
     }
 
-    /// Трекеры, сгруппированные по категориям, — по одной секции FRC на категорию.
     var categories: [TrackerCategory] {
         (fetchedResultsController.sections ?? []).map { section in
             let trackers = (section.objects as? [TrackerCoreData] ?? []).compactMap(makeTracker)
@@ -84,19 +79,15 @@ final class TrackerStore: NSObject {
         )
     }
 
-    /// Объект Core Data для трекера — нужен `TrackerRecordStore`, чтобы связать отметку с трекером.
     func trackerCoreData(with id: UUID) throws -> TrackerCoreData? {
         let request = TrackerCoreData.fetchRequest()
-        // `#keyPath(TrackerCoreData.id)` не собирается: имя `id` пересекается с NSObject.
+        // через #keyPath не собирается, id конфликтует с NSObject
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         request.fetchLimit = 1
         return try context.fetch(request).first
     }
 
-    // MARK: Расписание
-
-    /// Расписание хранится строкой из номеров дней: `"2,4,6"`.
-    /// Пустая строка — нерегулярное событие.
+    // расписание храню строкой с номерами дней, например "2,4,6", пустая строка значит нерегулярное событие
     private static func encode(_ schedule: [WeekDay]) -> String {
         schedule.map { String($0.rawValue) }.joined(separator: ",")
     }

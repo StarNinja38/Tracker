@@ -2,9 +2,6 @@ import UIKit
 
 // MARK: - NewTrackerViewController
 
-/// Создание привычки или нерегулярного события. Вью показывает поле названия,
-/// строки «Категория» / «Расписание» и сетку эмодзи и цветов, а всё состояние
-/// и правила заполнения живут в `NewTrackerViewModel`.
 final class NewTrackerViewController: UIViewController {
 
     private enum Layout {
@@ -28,7 +25,6 @@ final class NewTrackerViewController: UIViewController {
         static let contentBottomInset: CGFloat = 16
     }
 
-    /// Секции сетки выбора: эмодзи сверху, цвета под ними.
     private enum SelectionSection: Int, CaseIterable {
         case emoji
         case color
@@ -41,7 +37,6 @@ final class NewTrackerViewController: UIViewController {
         }
     }
 
-    /// Отдаёт созданный трекер и название его категории главному экрану.
     var onCreate: ((Tracker, String) -> Void)?
 
     private let viewModel: NewTrackerViewModel
@@ -84,8 +79,6 @@ final class NewTrackerViewController: UIViewController {
         bind()
     }
 
-    // MARK: Байндинги
-
     private func bind() {
         viewModel.onCreateAllowedStateChange = { [weak self] isAllowed in
             self?.setCreateButton(enabled: isAllowed)
@@ -102,9 +95,6 @@ final class NewTrackerViewController: UIViewController {
         createButton.backgroundColor = UIColor(named: enabled ? "YP Black" : "YP Gray")
     }
 
-    // MARK: Вёрстка кодом
-
-    /// Кнопки прибиты к низу экрана, всё остальное прокручивается над ними.
     private func setupScrollView() {
         scrollView.keyboardDismissMode = .onDrag
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -136,7 +126,6 @@ final class NewTrackerViewController: UIViewController {
         titleTextField.accessibilityIdentifier = "tracker title"
         titleTextField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
 
-        // Отступ текста от края поля.
         let padding = UIView(frame: CGRect(x: 0, y: 0, width: Layout.sideInset, height: Layout.textFieldHeight))
         titleTextField.leftView = padding
         titleTextField.leftViewMode = .always
@@ -194,8 +183,7 @@ final class NewTrackerViewController: UIViewController {
         ])
     }
 
-    /// Сетка не прокручивается сама, поэтому её высота считается заранее:
-    /// заголовок, отступ и ряды по шесть ячеек в каждой секции.
+    // коллекция не скроллится, поэтому высоту считаю сам
     private func selectionCollectionHeight() -> CGFloat {
         SelectionSection.allCases.reduce(0) { height, section in
             let rows = (CGFloat(itemsCount(in: section)) / Layout.selectionItemsPerRow).rounded(.up)
@@ -246,7 +234,7 @@ final class NewTrackerViewController: UIViewController {
         ])
     }
 
-    /// Клавиатура перекрывает нижние кнопки, поэтому прячем её по тапу мимо поля.
+    // прячем клавиатуру по тапу мимо поля
     private func setupKeyboardDismiss() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         tap.cancelsTouchesInView = false
@@ -256,8 +244,6 @@ final class NewTrackerViewController: UIViewController {
     @objc private func hideKeyboard() {
         view.endEditing(true)
     }
-
-    // MARK: Действия
 
     @objc private func titleChanged() {
         viewModel.didChangeTitle(titleTextField.text ?? "")
@@ -270,8 +256,7 @@ final class NewTrackerViewController: UIViewController {
     @objc private func didTapCreate() {
         guard let result = viewModel.makeTracker() else { return }
 
-        // Трекер уходит на главный экран после закрытия шторки: если сохранение
-        // не удастся, алерт об ошибке будет показан уже поверх главного экрана.
+        // добавляю после закрытия, чтобы алерт с ошибкой показался на главном экране
         let onCreate = onCreate
         dismiss(animated: true) {
             onCreate?(result.tracker, result.categoryTitle)
@@ -306,7 +291,6 @@ extension NewTrackerViewController: UITableViewDataSource {
         configuration.textProperties.font = .systemFont(ofSize: 17)
         configuration.textProperties.color = UIColor(named: "YP Black") ?? .label
 
-        // Под названием строки — выбранная категория или дни расписания.
         if let subtitle = option.subtitle {
             configuration.secondaryText = subtitle
             configuration.secondaryTextProperties.font = .systemFont(ofSize: 17)
@@ -318,7 +302,7 @@ extension NewTrackerViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
         cell.accessibilityIdentifier = option.title
 
-        // У последней строки разделитель не нужен — под ней скругление.
+        // у последней строки разделитель не нужен
         let isLast = indexPath.row == optionViewModels.count - 1
         cell.separatorInset = isLast
             ? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
@@ -452,7 +436,7 @@ extension NewTrackerViewController: UICollectionViewDelegateFlowLayout {
         )
     }
 
-    /// Шесть ячеек в ряд на любой ширине экрана: свободное место делится между промежутками.
+    // 6 ячеек в ряд на любом экране
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,

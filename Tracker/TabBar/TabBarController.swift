@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - TabBarController
 
-/// Две вкладки: «Трекеры» и «Статистика». Вторая по заданию спринта 14 пустая.
 final class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
@@ -15,7 +14,6 @@ final class TabBarController: UITabBarController {
         let trackersViewController = UINavigationController(rootViewController: TrackersViewController())
         trackersViewController.tabBarItem = UITabBarItem(
             title: "Трекеры",
-            // ⚠️ Иконка-заглушка из SF Symbols — замени на ассет из Figma (Icon Store).
             image: UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
@@ -34,7 +32,7 @@ final class TabBarController: UITabBarController {
         tabBar.tintColor = UIColor(named: "YP Blue")
         tabBar.unselectedItemTintColor = UIColor(named: "YP Gray")
 
-        // Разделительная линия над таб-баром, как в макете.
+        // линия над таббаром как в макете
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(named: "YP White")

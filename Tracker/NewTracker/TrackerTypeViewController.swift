@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - TrackerType
 
-/// Что создаёт пользователь: привычку с расписанием или нерегулярное событие без него.
 enum TrackerType {
     case habit
     case irregularEvent
@@ -17,7 +16,6 @@ enum TrackerType {
 
 // MARK: - TrackerTypeViewController
 
-/// Шторка после нажатия «+»: выбор между привычкой и нерегулярным событием.
 final class TrackerTypeViewController: UIViewController {
 
     private enum Layout {
@@ -27,7 +25,6 @@ final class TrackerTypeViewController: UIViewController {
         static let cornerRadius: CGFloat = 16
     }
 
-    /// Отдаёт созданный трекер и название его категории главному экрану.
     var onCreate: ((Tracker, String) -> Void)?
 
     override func viewDidLoad() {

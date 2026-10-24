@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - OnboardingPageViewController
 
-/// Одна страница онбординга: фон на весь экран и заголовок.
 final class OnboardingPageViewController: UIViewController {
 
     private enum Layout {
@@ -44,7 +43,7 @@ final class OnboardingPageViewController: UIViewController {
         ])
     }
 
-    /// Заголовок чёрный в обеих темах: фон-картинка всегда светлая.
+    // текст всегда черный, фон у онбординга светлый в любой теме
     private func setupTitle() {
         titleLabel.text = page.title
         titleLabel.font = .systemFont(ofSize: 32, weight: .bold)
