@@ -3,6 +3,7 @@ import UIKit
 // MARK: - ScheduleViewController
 
 /// Экран «Расписание»: список дней недели с переключателями и кнопка «Готово».
+/// Выбор дней хранит `ScheduleViewModel`.
 final class ScheduleViewController: UIViewController {
 
     private enum Layout {
@@ -14,16 +15,19 @@ final class ScheduleViewController: UIViewController {
         static let buttonBottomInset: CGFloat = 16
     }
 
-    /// Дни, выбранные до открытия экрана.
-    var selectedDays: [WeekDay] = []
-
-    /// Возвращает выбор на экран создания привычки.
-    var onDone: (([WeekDay]) -> Void)?
+    private let viewModel: ScheduleViewModel
 
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let doneButton = UIButton(type: .system)
 
-    private let days = WeekDay.displayOrder
+    init(viewModel: ScheduleViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,7 +54,7 @@ final class ScheduleViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Layout.tableTopInset),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Layout.sideInset),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Layout.sideInset),
-            tableView.heightAnchor.constraint(equalToConstant: Layout.rowHeight * CGFloat(days.count))
+            tableView.heightAnchor.constraint(equalToConstant: Layout.rowHeight * CGFloat(viewModel.days.count))
         ])
     }
 
@@ -73,7 +77,7 @@ final class ScheduleViewController: UIViewController {
     }
 
     @objc private func didTapDone() {
-        onDone?(selectedDays)
+        viewModel.didTapDone()
         navigationController?.popViewController(animated: true)
     }
 }
@@ -83,7 +87,7 @@ final class ScheduleViewController: UIViewController {
 extension ScheduleViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        days.count
+        viewModel.days.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -94,16 +98,10 @@ extension ScheduleViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let day = days[indexPath.row]
-        cell.configure(day: day, isOn: selectedDays.contains(day))
+        let day = viewModel.days[indexPath.row]
+        cell.configure(day: day, isOn: viewModel.isSelected(day))
         cell.onSwitchChanged = { [weak self] isOn in
-            guard let self else { return }
-            if isOn {
-                guard !self.selectedDays.contains(day) else { return }
-                self.selectedDays.append(day)
-            } else {
-                self.selectedDays.removeAll { $0 == day }
-            }
+            self?.viewModel.setDay(day, isOn: isOn)
         }
         return cell
     }

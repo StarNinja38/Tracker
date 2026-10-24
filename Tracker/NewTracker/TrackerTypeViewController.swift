@@ -78,7 +78,7 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     private func showNewTracker(type: TrackerType) {
-        let newTracker = NewTrackerViewController(type: type)
+        let newTracker = NewTrackerViewController(viewModel: NewTrackerViewModel(type: type))
         newTracker.onCreate = onCreate
         navigationController?.pushViewController(newTracker, animated: true)
     }
