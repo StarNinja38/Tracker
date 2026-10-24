@@ -125,7 +125,8 @@ final class CategoryFormViewController: UIViewController {
         NSLayoutConstraint.activate([
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Layout.buttonSideInset),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Layout.buttonSideInset),
-            doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Layout.buttonBottomInset),
+            // Без клавиатуры гайд совпадает с низом safe area, с клавиатурой — поднимает кнопку над ней.
+            doneButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -Layout.buttonBottomInset),
             doneButton.heightAnchor.constraint(equalToConstant: Layout.buttonHeight)
         ])
     }
@@ -133,6 +134,7 @@ final class CategoryFormViewController: UIViewController {
     private func setupKeyboardDismiss() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         tap.cancelsTouchesInView = false
+        tap.delegate = self
         view.addGestureRecognizer(tap)
     }
 
@@ -149,6 +151,17 @@ final class CategoryFormViewController: UIViewController {
 
     @objc private func hideKeyboard() {
         view.endEditing(true)
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+
+extension CategoryFormViewController: UIGestureRecognizerDelegate {
+
+    /// Тап по кнопке не должен прятать клавиатуру: «Готово» привязана к ней
+    /// и уехала бы вниз раньше, чем палец отпустит кнопку.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        !(touch.view is UIControl)
     }
 }
 
