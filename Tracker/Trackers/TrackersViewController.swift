@@ -4,6 +4,7 @@ import UIKit
 
 /// Главный экран «Трекеры»: коллекция карточек, сгруппированных по категориям,
 /// с выбором даты в правом `NavBarItem` и кнопкой добавления в левом.
+/// Данные и фильтрация по дню — в `TrackersViewModel`.
 final class TrackersViewController: UIViewController {
 
     private enum Layout {
@@ -17,27 +18,8 @@ final class TrackersViewController: UIViewController {
         static let placeholderCenterOffset: CGFloat = 30
     }
 
-    // MARK: Хранение
+    private let viewModel: TrackersViewModel
 
-    private let trackerStore = TrackerStore()
-    private lazy var trackerRecordStore = TrackerRecordStore(trackerStore: trackerStore)
-
-    // MARK: Данные
-
-    /// Все категории с трекерами — копия того, что лежит в Core Data.
-    var categories: [TrackerCategory] = []
-
-    /// Записи о выполнении. Массив требуется заданием.
-    var completedTrackers: [TrackerRecord] = []
-
-    /// Дубль записей в `Set` — чтобы проверять выполненность за O(1),
-    /// а не линейным поиском по массиву.
-    private var completedRecords: Set<TrackerRecord> = []
-
-    /// Дата, выбранная в `UIDatePicker`.
-    var currentDate: Date = Date()
-
-    /// Категории, попадающие в выбранный день.
     private var visibleCategories: [TrackerCategory] = []
 
     // MARK: UI
@@ -51,6 +33,15 @@ final class TrackersViewController: UIViewController {
     private let placeholderImageView = UIImageView()
     private let placeholderLabel = UILabel()
 
+    init(viewModel: TrackersViewModel = TrackersViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: Жизненный цикл
 
     override func viewDidLoad() {
@@ -60,10 +51,37 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupCollectionView()
         setupPlaceholder()
+        bind()
+        viewModel.loadData()
+    }
 
-        trackerStore.delegate = self
-        trackerRecordStore.delegate = self
-        loadData()
+    // MARK: Байндинги
+
+    private func bind() {
+        viewModel.onVisibleCategoriesChange = { [weak self] categories in
+            self?.visibleCategories = categories
+            self?.collectionView.reloadData()
+        }
+        viewModel.onPlaceholderChange = { [weak self] text in
+            self?.setPlaceholder(text: text)
+        }
+        viewModel.onErrorStateChange = { [weak self] message in
+            self?.showError(message: message)
+        }
+    }
+
+    private func setPlaceholder(text: String?) {
+        let isEmpty = text != nil
+        placeholderLabel.text = text
+        placeholderImageView.isHidden = !isEmpty
+        placeholderLabel.isHidden = !isEmpty
+        collectionView.isHidden = isEmpty
+    }
+
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     // MARK: Вёрстка кодом
@@ -87,7 +105,7 @@ final class TrackersViewController: UIViewController {
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
         datePicker.locale = Locale(identifier: "ru_RU")
-        datePicker.date = currentDate
+        datePicker.date = viewModel.currentDate
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
 
@@ -121,14 +139,11 @@ final class TrackersViewController: UIViewController {
     }
 
     private func setupPlaceholder() {
-        // ⚠️ Картинка-заглушка из Figma («звезда») не подключена — стоит SF Symbol.
         placeholderImageView.image = UIImage(named: "placeholder_star")
-            ?? UIImage(systemName: "star.fill")
         placeholderImageView.contentMode = .scaleAspectFit
         placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderImageView)
 
-        placeholderLabel.text = "Что будем отслеживать?"
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         placeholderLabel.textColor = UIColor(named: "YP Black")
         placeholderLabel.textAlignment = .center
@@ -146,113 +161,20 @@ final class TrackersViewController: UIViewController {
         ])
     }
 
-    // MARK: Данные
-
-    /// Первое чтение из Core Data. Если база не прочиталась, вместо «Что будем
-    /// отслеживать?» пишем об ошибке — иначе сбой выглядел бы как пустой список.
-    private func loadData() {
-        do {
-            try trackerStore.performFetch()
-            try trackerRecordStore.performFetch()
-        } catch {
-            placeholderLabel.text = "Не удалось загрузить трекеры"
-        }
-        reloadCategories()
-        reloadRecords()
-    }
-
-    private func reloadCategories() {
-        categories = trackerStore.categories
-        reloadVisibleCategories()
-    }
-
-    private func reloadRecords() {
-        completedTrackers = trackerRecordStore.records
-        completedRecords = Set(completedTrackers)
-        reloadVisibleCategories()
-    }
-
-    /// Пересобирает список категорий под выбранный день и обновляет экран.
-    private func reloadVisibleCategories() {
-        guard let weekDay = WeekDay.from(date: currentDate) else {
-            visibleCategories = []
-            updateUI()
-            return
-        }
-
-        visibleCategories = categories.compactMap { category in
-            let trackers = category.trackers.filter { isVisible($0, weekDay: weekDay) }
-            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
-        }
-
-        updateUI()
-    }
-
-    /// Привычка видна в дни из расписания. Нерегулярное событие к дням не привязано:
-    /// пока оно не выполнено, показываем его в любой день, а после выполнения —
-    /// только в тот день, когда его отметили.
-    private func isVisible(_ tracker: Tracker, weekDay: WeekDay) -> Bool {
-        guard tracker.isIrregular else {
-            return tracker.schedule.contains(weekDay)
-        }
-        let completedDates = completedTrackers
-            .filter { $0.trackerId == tracker.id }
-            .map(\.date)
-        return completedDates.isEmpty || completedDates.contains(currentDate.startOfDay)
-    }
-
-    private func updateUI() {
-        let isEmpty = visibleCategories.isEmpty
-        placeholderImageView.isHidden = !isEmpty
-        placeholderLabel.isHidden = !isEmpty
-        collectionView.isHidden = isEmpty
-        collectionView.reloadData()
-    }
-
-    /// Трекер уходит в выбранную категорию. Экран обновится,
-    /// когда `TrackerStore` сообщит об изменении в Core Data.
-    private func addTracker(_ tracker: Tracker, toCategoryWithTitle categoryTitle: String) {
-        do {
-            try trackerStore.addTracker(tracker, toCategoryWithTitle: categoryTitle)
-        } catch {
-            showError(message: "Не удалось сохранить трекер")
-        }
-    }
-
-    private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
-    }
-
-    private func tracker(at indexPath: IndexPath) -> Tracker {
-        visibleCategories[indexPath.section].trackers[indexPath.item]
-    }
-
-    /// Все отметки трекера за всю историю — это и показывает счётчик.
-    private func completedDaysCount(for trackerId: UUID) -> Int {
-        completedTrackers.filter { $0.trackerId == trackerId }.count
-    }
-
-    private func isCompleted(_ trackerId: UUID, on date: Date) -> Bool {
-        completedRecords.contains(TrackerRecord(trackerId: trackerId, date: date.startOfDay))
-    }
-
     // MARK: Действия
 
     @objc private func didTapAddTracker() {
         // «+» открывает шторку выбора: привычка или нерегулярное событие.
         let trackerType = TrackerTypeViewController()
         trackerType.onCreate = { [weak self] tracker, categoryTitle in
-            self?.addTracker(tracker, toCategoryWithTitle: categoryTitle)
+            self?.viewModel.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         }
         let navigationController = UINavigationController(rootViewController: trackerType)
         present(navigationController, animated: true)
     }
 
     @objc private func dateChanged() {
-        currentDate = datePicker.date
-        reloadVisibleCategories()
+        viewModel.didChangeDate(datePicker.date)
     }
 }
 
@@ -272,20 +194,22 @@ extension TrackersViewController: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: TrackerCell.reuseIdentifier,
-            for: indexPath
-        ) as? TrackerCell else {
+        guard
+            let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: TrackerCell.reuseIdentifier,
+                for: indexPath
+            ) as? TrackerCell,
+            let cellViewModel = viewModel.cellViewModel(at: indexPath)
+        else {
             return UICollectionViewCell()
         }
 
-        let tracker = tracker(at: indexPath)
         cell.delegate = self
         cell.configure(
-            with: tracker,
-            isCompleted: isCompleted(tracker.id, on: currentDate),
-            completedDays: completedDaysCount(for: tracker.id),
-            isEnabled: currentDate.startOfDay <= Date().startOfDay
+            with: cellViewModel.tracker,
+            isCompleted: cellViewModel.isCompleted,
+            completedDays: cellViewModel.completedDays,
+            isEnabled: cellViewModel.isEnabled
         )
         return cell
     }
@@ -363,49 +287,6 @@ extension TrackersViewController: TrackerCellDelegate {
 
     func trackerCellDidTapPlus(_ cell: TrackerCell) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
-
-        // Отметить трекер для будущей даты нельзя.
-        guard currentDate.startOfDay <= Date().startOfDay else { return }
-
-        let tracker = tracker(at: indexPath)
-        let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
-
-        // Экран перерисуется по сигналу `TrackerRecordStore`.
-        do {
-            if completedRecords.contains(record) {
-                try trackerRecordStore.removeRecord(record)
-            } else {
-                try trackerRecordStore.addRecord(record)
-            }
-        } catch {
-            showError(message: "Не удалось сохранить отметку")
-        }
-    }
-}
-
-// MARK: - TrackerStoreDelegate
-
-extension TrackersViewController: TrackerStoreDelegate {
-
-    func trackerStoreDidUpdate(_ store: TrackerStore) {
-        reloadCategories()
-    }
-}
-
-// MARK: - TrackerRecordStoreDelegate
-
-extension TrackersViewController: TrackerRecordStoreDelegate {
-
-    func trackerRecordStoreDidUpdate(_ store: TrackerRecordStore) {
-        reloadRecords()
-    }
-}
-
-// MARK: - Date
-
-extension Date {
-    /// Полночь этого дня — записи о выполнении сравниваем по дню, не по времени.
-    var startOfDay: Date {
-        Calendar.current.startOfDay(for: self)
+        viewModel.didTapComplete(at: indexPath)
     }
 }
