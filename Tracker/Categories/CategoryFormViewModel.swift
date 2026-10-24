@@ -1,0 +1,91 @@
+import Foundation
+
+// MARK: - CategoryFormViewModel
+
+/// Вьюмодель экрана с полем для названия категории.
+final class CategoryFormViewModel {
+
+    enum Mode {
+        case create
+    }
+
+    private enum Constants {
+        static let titleLimit = 38
+    }
+
+    /// «Готово» доступна, когда введён хотя бы один символ и такой категории ещё нет.
+    var onDoneAllowedStateChange: Binding<Bool>?
+    /// Текст ошибки под полем; `nil` — ошибки нет.
+    var onErrorStateChange: Binding<String?>?
+    /// Категория сохранена — экран можно закрывать.
+    var onFinish: (() -> Void)?
+
+    let screenTitle: String
+    let initialText: String
+    let placeholder = "Введите название категории"
+
+    private let mode: Mode
+    private let store: TrackerCategoryStore
+    private var title = ""
+
+    init(mode: Mode, store: TrackerCategoryStore) {
+        self.mode = mode
+        self.store = store
+
+        switch mode {
+        case .create:
+            screenTitle = "Новая категория"
+            initialText = ""
+        }
+        title = initialText
+    }
+
+    /// Вызывается из `bind()`, чтобы вью сразу получила начальное состояние.
+    func start() {
+        validate()
+    }
+
+    /// Не даёт ввести больше 38 символов.
+    func canChangeTitle(to text: String) -> Bool {
+        text.count <= Constants.titleLimit
+    }
+
+    func didChangeTitle(_ text: String) {
+        title = text
+        validate()
+    }
+
+    func didTapDone() {
+        let trimmed = trimmedTitle
+        guard isValid(trimmed) else { return }
+        do {
+            switch mode {
+            case .create:
+                try store.addCategory(title: trimmed)
+            }
+            onFinish?()
+        } catch {
+            onErrorStateChange?("Не удалось сохранить категорию")
+        }
+    }
+
+    // MARK: Проверка
+
+    private var trimmedTitle: String {
+        title.trimmingCharacters(in: .whitespaces)
+    }
+
+    private func validate() {
+        let trimmed = trimmedTitle
+        onErrorStateChange?(isDuplicate(trimmed) ? "Такая категория уже есть" : nil)
+        onDoneAllowedStateChange?(isValid(trimmed))
+    }
+
+    private func isValid(_ title: String) -> Bool {
+        !title.isEmpty && !isDuplicate(title)
+    }
+
+    private func isDuplicate(_ title: String) -> Bool {
+        store.categoryTitles.contains(title)
+    }
+}

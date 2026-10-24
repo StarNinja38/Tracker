@@ -3,8 +3,7 @@ import UIKit
 // MARK: - NewTrackerViewController
 
 /// Создание привычки или нерегулярного события. У события нет раздела
-/// «Расписание», в остальном экраны одинаковые. Кнопка «Категория» по заданию
-/// спринта 15 есть, но экран категорий появится в следующем спринте.
+/// «Расписание», в остальном экраны одинаковые.
 final class NewTrackerViewController: UIViewController {
 
     private enum Layout {
@@ -59,8 +58,8 @@ final class NewTrackerViewController: UIViewController {
         }
     }
 
-    /// Отдаёт созданный трекер главному экрану.
-    var onCreate: ((Tracker) -> Void)?
+    /// Отдаёт созданный трекер и название его категории главному экрану.
+    var onCreate: ((Tracker, String) -> Void)?
 
     private let type: TrackerType
 
@@ -75,6 +74,7 @@ final class NewTrackerViewController: UIViewController {
     private let cancelButton = UIButton(type: .system)
     private let createButton = UIButton(type: .system)
 
+    private var selectedCategory: String?
     private var selectedSchedule: [WeekDay] = []
     private var selectedEmojiIndex: Int?
     private var selectedColorIndex: Int?
@@ -265,7 +265,8 @@ final class NewTrackerViewController: UIViewController {
     private func updateCreateButtonState() {
         let hasTitle = !(titleTextField.text ?? "").trimmingCharacters(in: .whitespaces).isEmpty
         let hasSchedule = type == .irregularEvent || !selectedSchedule.isEmpty
-        let isEnabled = hasTitle && hasSchedule && selectedEmojiIndex != nil && selectedColorIndex != nil
+        let isEnabled = hasTitle && selectedCategory != nil && hasSchedule
+            && selectedEmojiIndex != nil && selectedColorIndex != nil
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = UIColor(named: isEnabled ? "YP Black" : "YP Gray")
     }
@@ -295,6 +296,7 @@ final class NewTrackerViewController: UIViewController {
             !title.isEmpty,
             let emojiIndex = selectedEmojiIndex,
             let colorIndex = selectedColorIndex,
+            let categoryTitle = selectedCategory,
             let color = UIColor(named: Constants.colorNames[colorIndex])
         else { return }
 
@@ -314,7 +316,7 @@ final class NewTrackerViewController: UIViewController {
         // не удастся, алерт об ошибке будет показан уже поверх главного экрана.
         let onCreate = onCreate
         dismiss(animated: true) {
-            onCreate?(tracker)
+            onCreate?(tracker, categoryTitle)
         }
     }
 }
@@ -334,8 +336,9 @@ extension NewTrackerViewController: UITableViewDataSource {
         configuration.textProperties.font = .systemFont(ofSize: 17)
         configuration.textProperties.color = UIColor(named: "YP Black") ?? .label
 
-        // Под «Расписание» показываем выбранные дни.
-        if indexPath.row == 1, let subtitle = scheduleSubtitle() {
+        // Под «Категория» — выбранная категория, под «Расписание» — выбранные дни.
+        let subtitle = indexPath.row == 0 ? selectedCategory : scheduleSubtitle()
+        if let subtitle {
             configuration.secondaryText = subtitle
             configuration.secondaryTextProperties.font = .systemFont(ofSize: 17)
             configuration.secondaryTextProperties.color = UIColor(named: "YP Gray") ?? .secondaryLabel
@@ -368,8 +371,11 @@ extension NewTrackerViewController: UITableViewDelegate {
 
         view.endEditing(true)
 
-        // «Категория» по заданию спринта 15 ещё не открывает экран.
-        guard type == .habit, indexPath.row == 1 else { return }
+        if indexPath.row == 0 {
+            showCategories()
+            return
+        }
+        guard type == .habit else { return }
 
         let schedule = ScheduleViewController()
         schedule.selectedDays = selectedSchedule
@@ -380,6 +386,17 @@ extension NewTrackerViewController: UITableViewDelegate {
             self.updateCreateButtonState()
         }
         navigationController?.pushViewController(schedule, animated: true)
+    }
+
+    private func showCategories() {
+        let viewModel = CategoryListViewModel(selectedTitle: selectedCategory)
+        viewModel.onCategorySelected = { [weak self] title in
+            guard let self else { return }
+            self.selectedCategory = title
+            self.optionsTableView.reloadData()
+            self.updateCreateButtonState()
+        }
+        navigationController?.pushViewController(CategoryListViewController(viewModel: viewModel), animated: true)
     }
 }
 

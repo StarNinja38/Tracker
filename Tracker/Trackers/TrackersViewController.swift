@@ -17,12 +17,6 @@ final class TrackersViewController: UIViewController {
         static let placeholderCenterOffset: CGFloat = 30
     }
 
-    private enum Constants {
-        /// Пока экран «Категория» не реализован (задание спринта 16),
-        /// все новые трекеры складываем в одну категорию.
-        static let defaultCategoryTitle = "Важное"
-    }
-
     // MARK: Хранение
 
     private let trackerStore = TrackerStore()
@@ -215,11 +209,11 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    /// Новый трекер уходит в категорию по умолчанию. Экран обновится,
+    /// Трекер уходит в выбранную категорию. Экран обновится,
     /// когда `TrackerStore` сообщит об изменении в Core Data.
-    private func addTracker(_ tracker: Tracker) {
+    private func addTracker(_ tracker: Tracker, toCategoryWithTitle categoryTitle: String) {
         do {
-            try trackerStore.addTracker(tracker, toCategoryWithTitle: Constants.defaultCategoryTitle)
+            try trackerStore.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         } catch {
             showError(message: "Не удалось сохранить трекер")
         }
@@ -249,8 +243,8 @@ final class TrackersViewController: UIViewController {
     @objc private func didTapAddTracker() {
         // «+» открывает шторку выбора: привычка или нерегулярное событие.
         let trackerType = TrackerTypeViewController()
-        trackerType.onCreate = { [weak self] tracker in
-            self?.addTracker(tracker)
+        trackerType.onCreate = { [weak self] tracker, categoryTitle in
+            self?.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         }
         let navigationController = UINavigationController(rootViewController: trackerType)
         present(navigationController, animated: true)

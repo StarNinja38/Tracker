@@ -18,7 +18,7 @@ final class TrackerCategoryStore: NSObject {
     private let trackerStore: TrackerStore
     private let fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>
 
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore) {
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore = TrackerStore()) {
         self.context = context
         self.trackerStore = trackerStore
 
@@ -44,18 +44,45 @@ final class TrackerCategoryStore: NSObject {
         (fetchedResultsController.fetchedObjects ?? []).map(makeCategory)
     }
 
+    /// Названия категорий для экрана выбора — трекеры внутри ему не нужны.
+    var categoryTitles: [String] {
+        (fetchedResultsController.fetchedObjects ?? []).compactMap(\.title)
+    }
+
+    func addCategory(title: String) throws {
+        let category = TrackerCategoryCoreData(context: context)
+        category.title = title
+        try context.saveOrRollback()
+    }
+
+    func renameCategory(_ title: String, to newTitle: String) throws {
+        guard let category = try fetchCategory(withTitle: title) else { return }
+        category.title = newTitle
+        try context.saveOrRollback()
+    }
+
+    /// Трекеры категории и их отметки удаляются вместе с ней (Cascade в модели).
+    func deleteCategory(_ title: String) throws {
+        guard let category = try fetchCategory(withTitle: title) else { return }
+        context.delete(category)
+        try context.saveOrRollback()
+    }
+
     /// Возвращает категорию с таким названием, а если её нет — создаёт.
     func categoryCoreData(withTitle title: String) throws -> TrackerCategoryCoreData {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
-        request.fetchLimit = 1
-
-        if let existing = try context.fetch(request).first {
+        if let existing = try fetchCategory(withTitle: title) {
             return existing
         }
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
         return category
+    }
+
+    private func fetchCategory(withTitle title: String) throws -> TrackerCategoryCoreData? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
+        request.fetchLimit = 1
+        return try context.fetch(request).first
     }
 
     private func makeCategory(from categoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {

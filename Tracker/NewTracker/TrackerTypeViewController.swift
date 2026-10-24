@@ -27,8 +27,8 @@ final class TrackerTypeViewController: UIViewController {
         static let cornerRadius: CGFloat = 16
     }
 
-    /// Отдаёт созданный трекер главному экрану.
-    var onCreate: ((Tracker) -> Void)?
+    /// Отдаёт созданный трекер и название его категории главному экрану.
+    var onCreate: ((Tracker, String) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
