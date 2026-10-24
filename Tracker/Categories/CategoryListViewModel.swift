@@ -18,8 +18,9 @@ final class CategoryListViewModel {
     var onCategoriesChange: Binding<[CategoryCellViewModel]>?
     /// Текст ошибки чтения или сохранения; `nil` — ошибки нет.
     var onErrorStateChange: Binding<String?>?
-    /// Пользователь выбрал категорию — экран создания трекера показывает её под «Категория».
-    var onCategorySelected: Binding<String>?
+    /// Выбранная категория изменилась: её выбрали, переименовали или удалили (`nil`).
+    /// Экран создания трекера показывает её под «Категория».
+    var onSelectionChange: Binding<String?>?
 
     private(set) var categories: [CategoryCellViewModel] = [] {
         didSet { onCategoriesChange?(categories) }
@@ -53,13 +54,40 @@ final class CategoryListViewModel {
         let title = categories[index].title
         selectedTitle = title
         reloadCategories()
-        onCategorySelected?(title)
+        onSelectionChange?(title)
+    }
+
+    func deleteCategory(at index: Int) {
+        guard categories.indices.contains(index) else { return }
+        let title = categories[index].title
+        do {
+            try store.deleteCategory(title)
+        } catch {
+            onErrorStateChange?("Не удалось удалить категорию")
+            return
+        }
+        if title == selectedTitle {
+            selectedTitle = nil
+            onSelectionChange?(nil)
+        }
     }
 
     /// Вьюмодель экрана «Новая категория» работает с тем же стором:
     /// новая категория появится в списке по сигналу `NSFetchedResultsController`.
     func makeNewCategoryViewModel() -> CategoryFormViewModel {
         CategoryFormViewModel(mode: .create, store: store)
+    }
+
+    func makeEditCategoryViewModel(at index: Int) -> CategoryFormViewModel? {
+        guard categories.indices.contains(index) else { return nil }
+        let viewModel = CategoryFormViewModel(mode: .edit(title: categories[index].title), store: store)
+        viewModel.onCategoryRename = { [weak self] rename in
+            guard let self, rename.old == self.selectedTitle else { return }
+            self.selectedTitle = rename.new
+            self.reloadCategories()
+            self.onSelectionChange?(rename.new)
+        }
+        return viewModel
     }
 
     private func reloadCategories() {

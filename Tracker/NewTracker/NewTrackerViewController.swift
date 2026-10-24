@@ -390,7 +390,7 @@ extension NewTrackerViewController: UITableViewDelegate {
 
     private func showCategories() {
         let viewModel = CategoryListViewModel(selectedTitle: selectedCategory)
-        viewModel.onCategorySelected = { [weak self] title in
+        viewModel.onSelectionChange = { [weak self] title in
             guard let self else { return }
             self.selectedCategory = title
             self.optionsTableView.reloadData()

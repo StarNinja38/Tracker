@@ -3,7 +3,8 @@ import UIKit
 // MARK: - CategoryListViewController
 
 /// Экран «Категория»: список категорий с галочкой у выбранной, заглушка
-/// для пустого списка и кнопка «Добавить категорию». Вся логика — во вьюмодели,
+/// для пустого списка и кнопка «Добавить категорию». По долгому нажатию
+/// категорию можно отредактировать или удалить. Вся логика — во вьюмодели,
 /// вью только показывает её состояние и передаёт действия пользователя.
 final class CategoryListViewController: UIViewController {
 
@@ -146,6 +147,25 @@ final class CategoryListViewController: UIViewController {
         let form = CategoryFormViewController(viewModel: viewModel.makeNewCategoryViewModel())
         navigationController?.pushViewController(form, animated: true)
     }
+
+    private func editCategory(at index: Int) {
+        guard let formViewModel = viewModel.makeEditCategoryViewModel(at: index) else { return }
+        navigationController?.pushViewController(CategoryFormViewController(viewModel: formViewModel), animated: true)
+    }
+
+    /// Удаление подтверждается через action sheet.
+    private func confirmDeleteCategory(at index: Int) {
+        let alert = UIAlertController(
+            title: nil,
+            message: "Эта категория точно не нужна?",
+            preferredStyle: .actionSheet
+        )
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+            self?.viewModel.deleteCategory(at: index)
+        })
+        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -193,5 +213,24 @@ extension CategoryListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.didSelectCategory(at: indexPath.row)
         navigationController?.popViewController(animated: true)
+    }
+
+    /// Долгое нажатие: фон размывается, появляется меню «Редактировать» / «Удалить».
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        let index = indexPath.row
+        return UIContextMenuConfiguration(actionProvider: { [weak self] _ in
+            UIMenu(children: [
+                UIAction(title: "Редактировать") { _ in
+                    self?.editCategory(at: index)
+                },
+                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                    self?.confirmDeleteCategory(at: index)
+                }
+            ])
+        })
     }
 }

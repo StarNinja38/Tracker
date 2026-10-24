@@ -7,6 +7,7 @@ final class CategoryFormViewModel {
 
     enum Mode {
         case create
+        case edit(title: String)
     }
 
     private enum Constants {
@@ -19,6 +20,9 @@ final class CategoryFormViewModel {
     var onErrorStateChange: Binding<String?>?
     /// Категория сохранена — экран можно закрывать.
     var onFinish: (() -> Void)?
+    /// Категорию переименовали: старое и новое название. Нужен списку,
+    /// чтобы галочка осталась на переименованной категории.
+    var onCategoryRename: Binding<(old: String, new: String)>?
 
     let screenTitle: String
     let initialText: String
@@ -36,6 +40,9 @@ final class CategoryFormViewModel {
         case .create:
             screenTitle = "Новая категория"
             initialText = ""
+        case .edit(let title):
+            screenTitle = "Редактирование категории"
+            initialText = title
         }
         title = initialText
     }
@@ -62,6 +69,11 @@ final class CategoryFormViewModel {
             switch mode {
             case .create:
                 try store.addCategory(title: trimmed)
+            case .edit(let oldTitle):
+                if trimmed != oldTitle {
+                    try store.renameCategory(oldTitle, to: trimmed)
+                    onCategoryRename?((old: oldTitle, new: trimmed))
+                }
             }
             onFinish?()
         } catch {
@@ -85,7 +97,9 @@ final class CategoryFormViewModel {
         !title.isEmpty && !isDuplicate(title)
     }
 
+    /// При редактировании своё же название дубликатом не считается.
     private func isDuplicate(_ title: String) -> Bool {
-        store.categoryTitles.contains(title)
+        if case .edit(let oldTitle) = mode, title == oldTitle { return false }
+        return store.categoryTitles.contains(title)
     }
 }
