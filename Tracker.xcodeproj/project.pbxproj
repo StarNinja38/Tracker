@@ -91,6 +91,7 @@
 		43F165BAE9BD85724BA9A531 /* TrackerTypeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerTypeViewController.swift; sourceTree = "<group>"; };
 		564DD8E219B77799001703A6 /* TrackerCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategory.swift; sourceTree = "<group>"; };
 		591569D2D91CD96A1AA0FF4A /* CategoryListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewModel.swift; sourceTree = "<group>"; };
+		5BC7A62A3A148DF51D57005E /* Secrets.example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.example.xcconfig; sourceTree = "<group>"; };
 		5E70A741A09C52D3F6F60120 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		60972A7D1785DBF343F7636B /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		62E80C3ABBB99167A36DDC27 /* ScheduleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCell.swift; sourceTree = "<group>"; };
@@ -101,10 +102,12 @@
 		796FAB7602277866CAA8A62E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7B1FFA7A16A33CAC129868FA /* FiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewController.swift; sourceTree = "<group>"; };
 		7EDB3CA1B603EF58F1F2AC63 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
+		8071445157931CE86241FCD1 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		87E8C3C579E2C253875A1BD2 /* Tracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Tracker.xcdatamodel; sourceTree = "<group>"; };
 		918375DA20917FF848BB31CD /* Tracker 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Tracker 2.xcdatamodel"; sourceTree = "<group>"; };
 		92A2BAF1F2840DE6A0DDDDC6 /* Localizable.stringsdict */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = Localizable.stringsdict; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9329616946ECDBAB9C2514E7 /* NewTrackerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTrackerViewModel.swift; sourceTree = "<group>"; };
+		958D27C461EAD32037F49FEF /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		98D9E5307CA06B9AA53D6685 /* CategoryListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryListViewController.swift; sourceTree = "<group>"; };
 		9B9866400C636283EAD3B3D5 /* Localizable.stringsdict */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = Localizable.stringsdict; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		9C2DEBEC16C1B4B8B67A04F1 /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
@@ -169,6 +172,7 @@
 				9CA7E3F334F6A63EA714E7AC /* SceneDelegate.swift */,
 				D1F3BAD1C8D59E3275E2984C /* Analytics */,
 				3FFD1204F4A3271B0F4DB43E /* Categories */,
+				1F543D79DE8DFD40B04C5B28 /* Config */,
 				E55812AD287DE7B2B25667BB /* CoreData */,
 				5927B7936EB94B9C6FD928B9 /* Filters */,
 				17DB9063F768FE9901DEEF7E /* Helpers */,
@@ -193,6 +197,16 @@
 				AAD5A7D609221475D4F4ADB3 /* StatisticsViewModel.swift */,
 			);
 			path = Statistics;
+			sourceTree = "<group>";
+		};
+		1F543D79DE8DFD40B04C5B28 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				8071445157931CE86241FCD1 /* Config.xcconfig */,
+				5BC7A62A3A148DF51D57005E /* Secrets.example.xcconfig */,
+				958D27C461EAD32037F49FEF /* Secrets.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		273DBD5771F80FEE4D44262B /* Models */ = {
@@ -588,6 +602,7 @@
 		};
 		304247638C52527CAE6E600E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8071445157931CE86241FCD1 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -645,6 +660,7 @@
 		};
 		B04545F880E2003852AE0C3E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8071445157931CE86241FCD1 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

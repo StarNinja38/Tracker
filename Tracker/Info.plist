@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppMetricaAPIKey</key>
-	<string>6a3b3fc7-add1-48a7-942b-a1a9b4633ac1</string>
+	<string>$(APPMETRICA_API_KEY)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
