@@ -42,8 +42,9 @@ final class TrackerCell: UICollectionViewCell {
         setupPlusButton()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isEnabled: Bool) {
