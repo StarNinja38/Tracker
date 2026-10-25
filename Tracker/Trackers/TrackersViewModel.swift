@@ -9,20 +9,44 @@ struct TrackerCellViewModel {
     let isEnabled: Bool
 }
 
+// MARK: - TrackersPlaceholder
+
+enum TrackersPlaceholder {
+    case empty
+    case nothingFound
+    case loadError
+
+    var text: String {
+        switch self {
+        case .empty: "Что будем отслеживать?"
+        case .nothingFound: "Ничего не найдено"
+        case .loadError: "Не удалось загрузить трекеры"
+        }
+    }
+}
+
+// MARK: - FilterButtonState
+
+struct FilterButtonState {
+    let isHidden: Bool
+    let isActive: Bool
+}
+
 // MARK: - TrackersViewModel
 
 final class TrackersViewModel {
 
     private enum Text {
-        static let emptyPlaceholder = "Что будем отслеживать?"
-        static let loadError = "Не удалось загрузить трекеры"
         static let pinned = "Закреплённые"
         static let pin = "Закрепить"
         static let unpin = "Открепить"
     }
 
     var onVisibleCategoriesChange: Binding<[TrackerCategory]>?
-    var onPlaceholderChange: Binding<String?>?
+    var onPlaceholderChange: Binding<TrackersPlaceholder?>?
+    var onFilterButtonChange: Binding<FilterButtonState>?
+    // фильтр трекеров на сегодня сам переключает дату в календаре
+    var onDateChange: Binding<Date>?
     var onErrorStateChange: Binding<String>?
 
     private(set) var categories: [TrackerCategory] = []
@@ -33,6 +57,8 @@ final class TrackersViewModel {
     private(set) var currentDate: Date
 
     private(set) var visibleCategories: [TrackerCategory] = []
+    private(set) var currentFilter: TrackerFilter = .all
+    private var searchText = ""
 
     // в Set чтобы быстро проверять, выполнен ли трекер
     private var completedRecords: Set<TrackerRecord> = []
@@ -83,6 +109,30 @@ final class TrackersViewModel {
 
     func didChangeDate(_ date: Date) {
         currentDate = date
+        reloadVisibleCategories()
+    }
+
+    func didChangeSearchText(_ text: String) {
+        searchText = text.trimmingCharacters(in: .whitespaces)
+        reloadVisibleCategories()
+    }
+
+    func makeFiltersViewModel() -> FiltersViewModel {
+        let viewModel = FiltersViewModel(selectedFilter: currentFilter)
+        viewModel.onFilterSelected = { [weak self] filter in
+            self?.didSelectFilter(filter)
+        }
+        return viewModel
+    }
+
+    private func didSelectFilter(_ filter: TrackerFilter) {
+        if filter == .today {
+            currentDate = Date()
+            onDateChange?(currentDate)
+            currentFilter = .all
+        } else {
+            currentFilter = filter
+        }
         reloadVisibleCategories()
     }
 
@@ -191,21 +241,39 @@ final class TrackersViewModel {
     }
 
     private func reloadVisibleCategories() {
-        if let weekDay = WeekDay.from(date: currentDate) {
-            // закрепленные трекеры уходят из своей категории в отдельную секцию сверху
-            let pinned = categories.flatMap(\.trackers).filter { $0.isPinned && isVisible($0, weekDay: weekDay) }
-            let others: [TrackerCategory] = categories.compactMap { category in
-                let trackers = category.trackers.filter { !$0.isPinned && isVisible($0, weekDay: weekDay) }
-                return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
-            }
-            visibleCategories = pinned.isEmpty ? others : [TrackerCategory(title: Text.pinned, trackers: pinned)] + others
-        } else {
-            visibleCategories = []
-        }
+        guard let weekDay = WeekDay.from(date: currentDate) else { return }
+        let dayTrackers = categories.flatMap(\.trackers).filter { isVisible($0, weekDay: weekDay) }
+        let shownIds = Set(dayTrackers.filter(matchesFilterAndSearch).map(\.id))
 
+        // закрепленные трекеры уходят из своей категории в отдельную секцию сверху
+        let pinned = dayTrackers.filter { $0.isPinned && shownIds.contains($0.id) }
+        let others: [TrackerCategory] = categories.compactMap { category in
+            let trackers = category.trackers.filter { !$0.isPinned && shownIds.contains($0.id) }
+            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
+        }
+        visibleCategories = pinned.isEmpty ? others : [TrackerCategory(title: Text.pinned, trackers: pinned)] + others
         onVisibleCategoriesChange?(visibleCategories)
-        let placeholder = isLoadFailed ? Text.loadError : Text.emptyPlaceholder
-        onPlaceholderChange?(visibleCategories.isEmpty ? placeholder : nil)
+
+        // кнопку фильтров прячем, если на этот день трекеров нет совсем
+        onFilterButtonChange?(FilterButtonState(isHidden: dayTrackers.isEmpty, isActive: currentFilter.isActive))
+
+        if dayTrackers.isEmpty {
+            onPlaceholderChange?(isLoadFailed ? .loadError : .empty)
+        } else {
+            onPlaceholderChange?(visibleCategories.isEmpty ? .nothingFound : nil)
+        }
+    }
+
+    private func matchesFilterAndSearch(_ tracker: Tracker) -> Bool {
+        if !searchText.isEmpty && !tracker.title.localizedCaseInsensitiveContains(searchText) {
+            return false
+        }
+        let isCompleted = completedRecords.contains(TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay))
+        switch currentFilter {
+        case .all, .today: return true
+        case .completed: return isCompleted
+        case .uncompleted: return !isCompleted
+        }
     }
 
     // нерегулярное событие видно каждый день, пока не выполнено, потом только в день выполнения

@@ -12,10 +12,10 @@
 		0E286413F715438AEC72048E /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 85FF8809BED43BF1A234FC77 /* SnapshotTesting */; };
 		12321E19B933C1458AB1F254 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B446B85A05BF8F28F347F7A /* Tracker.swift */; };
 		14EBE4462F74E915E9434412 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F9F4CA9C7F6009B3F2A29A /* OnboardingViewController.swift */; };
+		1F78F4D1B3912E93949FA793 /* FiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1FFA7A16A33CAC129868FA /* FiltersViewController.swift */; };
 		201B30A491AD321CBFFE40ED /* CategoryFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CF2863C93DA4F6C660061DE /* CategoryFormViewModel.swift */; };
 		2542D8C2A2AF919716DA8D61 /* Tracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 256992E97B6A8F1A6ED3AB0B /* Tracker.xcdatamodeld */; };
 		2E5147C215C6F60EA0927BCA /* TrackersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40A5E38F0C66725E723E742 /* TrackersViewModel.swift */; };
-		31878C4C2DA71B0EB8110651 /* testEmptyMainScreen.1.png in Resources */ = {isa = PBXBuildFile; fileRef = F401FA9EBA8FE06873CEC00E /* testEmptyMainScreen.1.png */; };
 		35E1635148915A5FC0C3474B /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24A6637F8DAA19D8545F817C /* TrackerStore.swift */; };
 		39548E18F990A72020108412 /* TrackerCategoryHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53F0DFF99E9ABFF9409123C /* TrackerCategoryHeaderView.swift */; };
 		3E5629CD79E24E4E0048010F /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE47C17AE3AABA88899DA87E /* OnboardingPageViewController.swift */; };
@@ -31,8 +31,8 @@
 		8A1ACFE46F59E9DAF6E8C8BD /* NewTrackerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF95ACC0755ADEAC2BBF6AFA /* NewTrackerViewController.swift */; };
 		8B7344C5CF1E02469C8030F3 /* ColorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9874D7387D92C2A0F0CCA0 /* ColorCell.swift */; };
 		921BC184377D30FA5A6AD6C2 /* Binding.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2BB91E4ADBFC6DE8175450 /* Binding.swift */; };
-		93083B63872F452F8156127F /* testMainScreenWithTrackersDark.1.png in Resources */ = {isa = PBXBuildFile; fileRef = 66FB9A743846D2E5BB3618B9 /* testMainScreenWithTrackersDark.1.png */; };
 		935954F7C2A082198D45CEBC /* UIColorMarshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2AFC3EBA98C8FCDBB48E8B /* UIColorMarshalling.swift */; };
+		947472FA67544887A60128C8 /* FiltersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E4F77353AA23FC6010DAF5 /* FiltersViewModel.swift */; };
 		960D00B978C6C729ADEBE21F /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E82C9C1B6F1682CB6A53D1E /* TrackersViewController.swift */; };
 		995F09A8902F5887243E5B69 /* WeekDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90577BA2AE49984D6E2C077 /* WeekDay.swift */; };
 		9AB2F2E015664FEA0A4290C2 /* TrackerCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 564DD8E219B77799001703A6 /* TrackerCategory.swift */; };
@@ -45,11 +45,10 @@
 		BFE91BA28D901D132A977F92 /* CategoryFormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09527104272782FA9EBE1C76 /* CategoryFormViewController.swift */; };
 		C175112D6BE0FDB0E7283109 /* AccessibilityIdentifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3BB27CE65C7AA3C7269FA24 /* AccessibilityIdentifiers.swift */; };
 		C938FC3F4770B3B846A4151A /* CategoryListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D9E5307CA06B9AA53D6685 /* CategoryListViewController.swift */; };
-		D10614E6972FE06DC4C6E515 /* testEmptyMainScreenDark.1.png in Resources */ = {isa = PBXBuildFile; fileRef = E861AF2571A572C489AEBF8A /* testEmptyMainScreenDark.1.png */; };
+		D04588974AC2FD3C8CF15775 /* TrackerFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77F530737A562E01BBDDEC3 /* TrackerFilter.swift */; };
 		E3A0BB8B9D0973DEABD3FCB5 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C274DF4A8CB1DAEC8490E797 /* OnboardingViewModel.swift */; };
 		E6D482E965F1740FCE851C21 /* TrackerTypeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43F165BAE9BD85724BA9A531 /* TrackerTypeViewController.swift */; };
 		ED1FDA87C3CCBCCC0C63E460 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A578FAA9644652B482F019 /* TabBarController.swift */; };
-		EDCF1C420800BBDAC04BB5EF /* testMainScreenWithTrackers.1.png in Resources */ = {isa = PBXBuildFile; fileRef = A5928E5E40AA8C7880DDEBF0 /* testMainScreenWithTrackers.1.png */; };
 		F4437DDA5B9CF1B0BE0CB91B /* TrackerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F73B7EF382282D60371A5B0 /* TrackerCell.swift */; };
 		FDBA6FC068B6A85C41300554 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA7E3F334F6A63EA714E7AC /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -84,9 +83,10 @@
 		5E70A741A09C52D3F6F60120 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		62E80C3ABBB99167A36DDC27 /* ScheduleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCell.swift; sourceTree = "<group>"; };
 		64D5805312125908EB35DC12 /* ScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewController.swift; sourceTree = "<group>"; };
-		66FB9A743846D2E5BB3618B9 /* testMainScreenWithTrackersDark.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testMainScreenWithTrackersDark.1.png; sourceTree = "<group>"; };
+		68E4F77353AA23FC6010DAF5 /* FiltersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewModel.swift; sourceTree = "<group>"; };
 		6F73B7EF382282D60371A5B0 /* TrackerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCell.swift; sourceTree = "<group>"; };
 		796FAB7602277866CAA8A62E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7B1FFA7A16A33CAC129868FA /* FiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewController.swift; sourceTree = "<group>"; };
 		7EDB3CA1B603EF58F1F2AC63 /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
 		87E8C3C579E2C253875A1BD2 /* Tracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Tracker.xcdatamodel; sourceTree = "<group>"; };
 		918375DA20917FF848BB31CD /* Tracker 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Tracker 2.xcdatamodel"; sourceTree = "<group>"; };
@@ -97,7 +97,6 @@
 		9CF2863C93DA4F6C660061DE /* CategoryFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFormViewModel.swift; sourceTree = "<group>"; };
 		9E82C9C1B6F1682CB6A53D1E /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
 		A03E2D82D6B5B46A149B2326 /* TrackerTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		A5928E5E40AA8C7880DDEBF0 /* testMainScreenWithTrackers.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testMainScreenWithTrackers.1.png; sourceTree = "<group>"; };
 		AA2BB91E4ADBFC6DE8175450 /* Binding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Binding.swift; sourceTree = "<group>"; };
 		B3BB27CE65C7AA3C7269FA24 /* AccessibilityIdentifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityIdentifiers.swift; sourceTree = "<group>"; };
 		B53F0DFF99E9ABFF9409123C /* TrackerCategoryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryHeaderView.swift; sourceTree = "<group>"; };
@@ -109,9 +108,8 @@
 		D4E6BAE7FF1A542E309488CE /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		E40A5E38F0C66725E723E742 /* TrackersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewModel.swift; sourceTree = "<group>"; };
 		E43B104B3CC5BA82040DF816 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewModel.swift; sourceTree = "<group>"; };
-		E861AF2571A572C489AEBF8A /* testEmptyMainScreenDark.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEmptyMainScreenDark.1.png; sourceTree = "<group>"; };
+		E77F530737A562E01BBDDEC3 /* TrackerFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerFilter.swift; sourceTree = "<group>"; };
 		EED0EDB803A7306E20CCFD38 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F401FA9EBA8FE06873CEC00E /* testEmptyMainScreen.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = testEmptyMainScreen.1.png; sourceTree = "<group>"; };
 		FC73204281A198D912E1B4A6 /* EmojiCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -127,17 +125,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0A350346B179C773A3A2EF12 /* TrackersViewControllerSnapshotTests */ = {
-			isa = PBXGroup;
-			children = (
-				F401FA9EBA8FE06873CEC00E /* testEmptyMainScreen.1.png */,
-				E861AF2571A572C489AEBF8A /* testEmptyMainScreenDark.1.png */,
-				A5928E5E40AA8C7880DDEBF0 /* testMainScreenWithTrackers.1.png */,
-				66FB9A743846D2E5BB3618B9 /* testMainScreenWithTrackersDark.1.png */,
-			);
-			path = TrackersViewControllerSnapshotTests;
-			sourceTree = "<group>";
-		};
 		17DB9063F768FE9901DEEF7E /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -157,6 +144,7 @@
 				9CA7E3F334F6A63EA714E7AC /* SceneDelegate.swift */,
 				3FFD1204F4A3271B0F4DB43E /* Categories */,
 				E55812AD287DE7B2B25667BB /* CoreData */,
+				5927B7936EB94B9C6FD928B9 /* Filters */,
 				17DB9063F768FE9901DEEF7E /* Helpers */,
 				273DBD5771F80FEE4D44262B /* Models */,
 				658140E00F4A0138E536032C /* NewTracker */,
@@ -219,6 +207,16 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		5927B7936EB94B9C6FD928B9 /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				7B1FFA7A16A33CAC129868FA /* FiltersViewController.swift */,
+				68E4F77353AA23FC6010DAF5 /* FiltersViewModel.swift */,
+				E77F530737A562E01BBDDEC3 /* TrackerFilter.swift */,
+			);
+			path = Filters;
+			sourceTree = "<group>";
+		};
 		658140E00F4A0138E536032C /* NewTracker */ = {
 			isa = PBXGroup;
 			children = (
@@ -256,7 +254,6 @@
 			isa = PBXGroup;
 			children = (
 				247AAC763D23C8EADD9130D3 /* TrackersViewControllerSnapshotTests.swift */,
-				9E40FA2E86F3F69C9294C2E0 /* __Snapshots__ */,
 			);
 			path = TrackerTests;
 			sourceTree = "<group>";
@@ -268,14 +265,6 @@
 				A03E2D82D6B5B46A149B2326 /* TrackerTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		9E40FA2E86F3F69C9294C2E0 /* __Snapshots__ */ = {
-			isa = PBXGroup;
-			children = (
-				0A350346B179C773A3A2EF12 /* TrackersViewControllerSnapshotTests */,
-			);
-			path = __Snapshots__;
 			sourceTree = "<group>";
 		};
 		BDED70DB5F86B2078A577609 /* Onboarding */ = {
@@ -342,7 +331,6 @@
 			buildConfigurationList = FD3BDBC692C19964213BE9DC /* Build configuration list for PBXNativeTarget "TrackerTests" */;
 			buildPhases = (
 				372D3E000D5D02F034ABF29A /* Sources */,
-				9C36C92BD1CF8665DD1C328E /* Resources */,
 				65E2CADB587F233489EC34B8 /* Frameworks */,
 			);
 			buildRules = (
@@ -402,17 +390,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9C36C92BD1CF8665DD1C328E /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				31878C4C2DA71B0EB8110651 /* testEmptyMainScreen.1.png in Resources */,
-				D10614E6972FE06DC4C6E515 /* testEmptyMainScreenDark.1.png in Resources */,
-				EDCF1C420800BBDAC04BB5EF /* testMainScreenWithTrackers.1.png in Resources */,
-				93083B63872F452F8156127F /* testMainScreenWithTrackersDark.1.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -439,6 +416,8 @@
 				8B7344C5CF1E02469C8030F3 /* ColorCell.swift in Sources */,
 				6DEC6C7C7459CE7493F65AFF /* CoreDataStack.swift in Sources */,
 				B30FF97914A8AD0E96C73073 /* EmojiCell.swift in Sources */,
+				1F78F4D1B3912E93949FA793 /* FiltersViewController.swift in Sources */,
+				947472FA67544887A60128C8 /* FiltersViewModel.swift in Sources */,
 				8A1ACFE46F59E9DAF6E8C8BD /* NewTrackerViewController.swift in Sources */,
 				43D05279BE8820B6216D082F /* NewTrackerViewModel.swift in Sources */,
 				3E5629CD79E24E4E0048010F /* OnboardingPageViewController.swift in Sources */,
@@ -457,6 +436,7 @@
 				39548E18F990A72020108412 /* TrackerCategoryHeaderView.swift in Sources */,
 				A92D74FC9941EBE52E95B22E /* TrackerCategoryStore.swift in Sources */,
 				F4437DDA5B9CF1B0BE0CB91B /* TrackerCell.swift in Sources */,
+				D04588974AC2FD3C8CF15775 /* TrackerFilter.swift in Sources */,
 				3F7FA400A7BE56D32CC850F5 /* TrackerRecord.swift in Sources */,
 				000919659A7F6A4B8716BBAE /* TrackerRecordStore.swift in Sources */,
 				35E1635148915A5FC0C3474B /* TrackerStore.swift in Sources */,
