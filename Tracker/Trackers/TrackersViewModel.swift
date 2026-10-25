@@ -27,7 +27,7 @@ final class TrackersViewModel {
     // массив нужен по заданию
     private(set) var completedTrackers: [TrackerRecord] = []
 
-    private(set) var currentDate = Date()
+    private(set) var currentDate: Date
 
     private(set) var visibleCategories: [TrackerCategory] = []
 
@@ -39,14 +39,29 @@ final class TrackersViewModel {
     private let trackerRecordStore: TrackerRecordStore
     private let trackerCategoryStore: TrackerCategoryStore
 
-    init(trackerStore: TrackerStore = TrackerStore()) {
+    init(
+        trackerStore: TrackerStore,
+        trackerRecordStore: TrackerRecordStore,
+        trackerCategoryStore: TrackerCategoryStore,
+        currentDate: Date = Date()
+    ) {
         self.trackerStore = trackerStore
-        trackerRecordStore = TrackerRecordStore(trackerStore: trackerStore)
-        trackerCategoryStore = TrackerCategoryStore(trackerStore: trackerStore)
+        self.trackerRecordStore = trackerRecordStore
+        self.trackerCategoryStore = trackerCategoryStore
+        self.currentDate = currentDate
 
         trackerStore.delegate = self
         trackerRecordStore.delegate = self
         trackerCategoryStore.delegate = self
+    }
+
+    convenience init() {
+        let trackerStore = TrackerStore()
+        self.init(
+            trackerStore: trackerStore,
+            trackerRecordStore: TrackerRecordStore(trackerStore: trackerStore),
+            trackerCategoryStore: TrackerCategoryStore(trackerStore: trackerStore)
+        )
     }
 
     // если база не загрузилась, показываю ошибку, а не пустую заглушку
