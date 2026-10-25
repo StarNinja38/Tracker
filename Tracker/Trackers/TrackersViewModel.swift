@@ -67,13 +67,16 @@ final class TrackersViewModel {
     private let trackerStore: TrackerStore
     private let trackerRecordStore: TrackerRecordStore
     private let trackerCategoryStore: TrackerCategoryStore
+    private let analytics: AnalyticsServiceProtocol
 
     init(
         trackerStore: TrackerStore,
         trackerRecordStore: TrackerRecordStore,
         trackerCategoryStore: TrackerCategoryStore,
-        currentDate: Date = Date()
+        currentDate: Date = Date(),
+        analytics: AnalyticsServiceProtocol = AnalyticsService()
     ) {
+        self.analytics = analytics
         self.trackerStore = trackerStore
         self.trackerRecordStore = trackerRecordStore
         self.trackerCategoryStore = trackerCategoryStore
@@ -105,6 +108,32 @@ final class TrackersViewModel {
         }
         reloadCategories()
         reloadRecords()
+    }
+
+    // MARK: - Аналитика
+
+    func viewDidAppear() {
+        analytics.report(event: .open, screen: .main, item: nil)
+    }
+
+    func viewDidDisappear() {
+        analytics.report(event: .close, screen: .main, item: nil)
+    }
+
+    func didTapAddTracker() {
+        analytics.report(event: .click, screen: .main, item: .addTrack)
+    }
+
+    func didTapFilters() {
+        analytics.report(event: .click, screen: .main, item: .filter)
+    }
+
+    func didSelectEdit() {
+        analytics.report(event: .click, screen: .main, item: .edit)
+    }
+
+    func didSelectDelete() {
+        analytics.report(event: .click, screen: .main, item: .delete)
     }
 
     func didChangeDate(_ date: Date) {
@@ -193,6 +222,7 @@ final class TrackersViewModel {
 
     // на будущую дату отмечать нельзя
     func didTapComplete(at indexPath: IndexPath) {
+        analytics.report(event: .click, screen: .main, item: .track)
         guard isCurrentDateEditable, let tracker = tracker(at: indexPath) else { return }
         let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
 

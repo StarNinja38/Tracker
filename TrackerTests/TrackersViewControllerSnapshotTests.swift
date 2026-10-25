@@ -75,8 +75,16 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
             trackerStore: trackerStore,
             trackerRecordStore: recordStore,
             trackerCategoryStore: categoryStore,
-            currentDate: date
+            currentDate: date,
+            analytics: AnalyticsStub()
         )
         return UINavigationController(rootViewController: TrackersViewController(viewModel: viewModel))
     }
+}
+
+// MARK: - AnalyticsStub
+
+// в тестах события никуда не отправляем
+private struct AnalyticsStub: AnalyticsServiceProtocol {
+    func report(event: AnalyticsEvent, screen: AnalyticsScreen, item: AnalyticsItem?) {}
 }

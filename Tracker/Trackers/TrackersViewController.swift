@@ -54,6 +54,16 @@ final class TrackersViewController: UIViewController {
         viewModel.loadData()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.viewDidAppear()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        viewModel.viewDidDisappear()
+    }
+
     private func bind() {
         viewModel.onVisibleCategoriesChange = { [weak self] categories in
             self?.visibleCategories = categories
@@ -186,11 +196,13 @@ final class TrackersViewController: UIViewController {
     }
 
     @objc private func didTapFilters() {
+        viewModel.didTapFilters()
         let filters = FiltersViewController(viewModel: viewModel.makeFiltersViewModel())
         present(UINavigationController(rootViewController: filters), animated: true)
     }
 
     @objc private func didTapAddTracker() {
+        viewModel.didTapAddTracker()
         let trackerType = TrackerTypeViewController()
         trackerType.onSave = { [weak self] tracker, categoryTitle in
             self?.viewModel.addTracker(tracker, toCategoryWithTitle: categoryTitle)
@@ -308,9 +320,11 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                     self?.viewModel.didTogglePin(at: indexPath)
                 },
                 UIAction(title: NSLocalizedString("menu.edit", comment: "")) { _ in
+                    self?.viewModel.didSelectEdit()
                     self?.editTracker(at: indexPath)
                 },
                 UIAction(title: NSLocalizedString("menu.delete", comment: ""), attributes: .destructive) { _ in
+                    self?.viewModel.didSelectDelete()
                     self?.confirmDeleteTracker(at: indexPath)
                 }
             ])
