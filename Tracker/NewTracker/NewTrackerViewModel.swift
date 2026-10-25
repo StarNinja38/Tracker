@@ -17,8 +17,8 @@ final class NewTrackerViewModel {
 
         var title: String {
             switch self {
-            case .category: return "Категория"
-            case .schedule: return "Расписание"
+            case .category: "Категория"
+            case .schedule: "Расписание"
             }
         }
     }

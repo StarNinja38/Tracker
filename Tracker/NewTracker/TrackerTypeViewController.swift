@@ -8,8 +8,8 @@ enum TrackerType {
 
     var screenTitle: String {
         switch self {
-        case .habit: return "Новая привычка"
-        case .irregularEvent: return "Новое нерегулярное событие"
+        case .habit: "Новая привычка"
+        case .irregularEvent: "Новое нерегулярное событие"
         }
     }
 }

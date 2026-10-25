@@ -31,8 +31,8 @@ final class NewTrackerViewController: UIViewController {
 
         var title: String {
             switch self {
-            case .emoji: return "Emoji"
-            case .color: return "Цвет"
+            case .emoji: "Emoji"
+            case .color: "Цвет"
             }
         }
     }
@@ -198,8 +198,8 @@ final class NewTrackerViewController: UIViewController {
 
     private func itemsCount(in section: SelectionSection) -> Int {
         switch section {
-        case .emoji: return viewModel.emojis.count
-        case .color: return viewModel.colors.count
+        case .emoji: viewModel.emojis.count
+        case .color: viewModel.colors.count
         }
     }
 
