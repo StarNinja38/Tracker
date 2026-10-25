@@ -110,7 +110,7 @@ final class CategoryFormViewController: UIViewController {
     }
 
     private func setupDoneButton() {
-        doneButton.setTitle("Готово", for: .normal)
+        doneButton.setTitle(NSLocalizedString("common.done", comment: ""), for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         doneButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         doneButton.layer.cornerRadius = Layout.cornerRadius

@@ -73,21 +73,9 @@ final class TrackerCell: UICollectionViewCell {
             : AccessibilityIdentifiers.trackerUndoneButton
     }
 
-    // склонение: 1 день, 2 дня, 5 дней
+    // склонение дней лежит в Localizable.stringsdict
     static func daysText(_ count: Int) -> String {
-        let remainder100 = count % 100
-        let remainder10 = count % 10
-        let word: String
-        if (11...14).contains(remainder100) {
-            word = "дней"
-        } else if remainder10 == 1 {
-            word = "день"
-        } else if (2...4).contains(remainder10) {
-            word = "дня"
-        } else {
-            word = "дней"
-        }
-        return "\(count) \(word)"
+        String.localizedStringWithFormat(NSLocalizedString("days.count", comment: ""), count)
     }
 
     private func setupCard() {

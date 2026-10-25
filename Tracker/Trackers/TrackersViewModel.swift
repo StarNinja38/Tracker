@@ -18,9 +18,9 @@ enum TrackersPlaceholder {
 
     var text: String {
         switch self {
-        case .empty: "Что будем отслеживать?"
-        case .nothingFound: "Ничего не найдено"
-        case .loadError: "Не удалось загрузить трекеры"
+        case .empty: NSLocalizedString("main.empty", comment: "")
+        case .nothingFound: NSLocalizedString("main.nothingFound", comment: "")
+        case .loadError: NSLocalizedString("main.loadError", comment: "")
         }
     }
 }
@@ -37,9 +37,9 @@ struct FilterButtonState {
 final class TrackersViewModel {
 
     private enum Text {
-        static let pinned = "Закреплённые"
-        static let pin = "Закрепить"
-        static let unpin = "Открепить"
+        static let pinned = NSLocalizedString("main.pinned", comment: "")
+        static let pin = NSLocalizedString("menu.pin", comment: "")
+        static let unpin = NSLocalizedString("menu.unpin", comment: "")
     }
 
     var onVisibleCategoriesChange: Binding<[TrackerCategory]>?
@@ -140,7 +140,7 @@ final class TrackersViewModel {
         do {
             try trackerStore.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         } catch {
-            onErrorStateChange?("Не удалось сохранить трекер")
+            onErrorStateChange?(NSLocalizedString("error.saveTracker", comment: ""))
         }
     }
 
@@ -148,7 +148,7 @@ final class TrackersViewModel {
         do {
             try trackerStore.updateTracker(tracker, categoryTitle: categoryTitle)
         } catch {
-            onErrorStateChange?("Не удалось сохранить трекер")
+            onErrorStateChange?(NSLocalizedString("error.saveTracker", comment: ""))
         }
     }
 
@@ -167,7 +167,7 @@ final class TrackersViewModel {
         do {
             try trackerStore.setPinned(!tracker.isPinned, forTrackerWith: tracker.id)
         } catch {
-            onErrorStateChange?("Не удалось закрепить трекер")
+            onErrorStateChange?(NSLocalizedString("error.pinTracker", comment: ""))
         }
     }
 
@@ -175,7 +175,7 @@ final class TrackersViewModel {
         do {
             try trackerStore.deleteTracker(id: id)
         } catch {
-            onErrorStateChange?("Не удалось удалить трекер")
+            onErrorStateChange?(NSLocalizedString("error.deleteTracker", comment: ""))
         }
     }
 
@@ -203,7 +203,7 @@ final class TrackersViewModel {
                 try trackerRecordStore.addRecord(record)
             }
         } catch {
-            onErrorStateChange?("Не удалось сохранить отметку")
+            onErrorStateChange?(NSLocalizedString("error.saveRecord", comment: ""))
         }
     }
 
@@ -315,7 +315,7 @@ extension TrackersViewModel: TrackerCategoryStoreDelegate {
         do {
             try trackerStore.performFetch()
         } catch {
-            onErrorStateChange?("Не удалось обновить трекеры")
+            onErrorStateChange?(NSLocalizedString("error.updateTrackers", comment: ""))
         }
         reloadCategories()
     }

@@ -32,7 +32,7 @@ final class StatisticsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(resource: .ypWhite)
-        title = "Статистика"
+        title = NSLocalizedString("statistics.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
 
         setupStackView()
@@ -80,7 +80,7 @@ final class StatisticsViewController: UIViewController {
         placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderImageView)
 
-        placeholderLabel.text = "Анализировать пока нечего"
+        placeholderLabel.text = NSLocalizedString("statistics.empty", comment: "")
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         placeholderLabel.textColor = UIColor(resource: .ypBlack)
         placeholderLabel.textAlignment = .center

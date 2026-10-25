@@ -20,7 +20,7 @@ final class CategoryFormViewModel {
 
     let screenTitle: String
     let initialText: String
-    let placeholder = "Введите название категории"
+    let placeholder = NSLocalizedString("category.placeholder", comment: "")
 
     private let mode: Mode
     private let store: TrackerCategoryStore
@@ -32,10 +32,10 @@ final class CategoryFormViewModel {
 
         switch mode {
         case .create:
-            screenTitle = "Новая категория"
+            screenTitle = NSLocalizedString("category.new", comment: "")
             initialText = ""
         case .edit(let title):
-            screenTitle = "Редактирование категории"
+            screenTitle = NSLocalizedString("category.edit", comment: "")
             initialText = title
         }
         title = initialText
@@ -69,7 +69,7 @@ final class CategoryFormViewModel {
             }
             onFinish?()
         } catch {
-            onErrorStateChange?("Не удалось сохранить категорию")
+            onErrorStateChange?(NSLocalizedString("error.saveCategory", comment: ""))
         }
     }
 
@@ -79,7 +79,7 @@ final class CategoryFormViewModel {
 
     private func validate() {
         let trimmed = trimmedTitle
-        onErrorStateChange?(isDuplicate(trimmed) ? "Такая категория уже есть" : nil)
+        onErrorStateChange?(isDuplicate(trimmed) ? NSLocalizedString("category.duplicate", comment: "") : nil)
         onDoneAllowedStateChange?(isValid(trimmed))
     }
 

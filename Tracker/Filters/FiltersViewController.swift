@@ -27,7 +27,7 @@ final class FiltersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(resource: .ypWhite)
-        title = "Фильтры"
+        title = NSLocalizedString("main.filters", comment: "")
         setupTableView()
     }
 

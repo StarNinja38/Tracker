@@ -36,7 +36,7 @@ final class CategoryListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(resource: .ypWhite)
-        title = "Категория"
+        title = NSLocalizedString("newTracker.category", comment: "")
         navigationItem.hidesBackButton = true
 
         setupAddButton()
@@ -65,13 +65,13 @@ final class CategoryListViewController: UIViewController {
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: NSLocalizedString("common.error", comment: ""), message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 
     private func setupAddButton() {
-        addButton.setTitle("Добавить категорию", for: .normal)
+        addButton.setTitle(NSLocalizedString("category.add", comment: ""), for: .normal)
         addButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         addButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         addButton.backgroundColor = UIColor(resource: .ypBlack)
@@ -115,7 +115,7 @@ final class CategoryListViewController: UIViewController {
         placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderImageView)
 
-        placeholderLabel.text = "Привычки и события можно\nобъединить по смыслу"
+        placeholderLabel.text = NSLocalizedString("category.empty", comment: "")
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         placeholderLabel.textColor = UIColor(resource: .ypBlack)
         placeholderLabel.textAlignment = .center
@@ -147,13 +147,13 @@ final class CategoryListViewController: UIViewController {
     private func confirmDeleteCategory(at index: Int) {
         let alert = UIAlertController(
             title: nil,
-            message: "Эта категория точно не нужна?",
+            message: NSLocalizedString("category.deleteConfirm", comment: ""),
             preferredStyle: .actionSheet
         )
-        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("menu.delete", comment: ""), style: .destructive) { [weak self] _ in
             self?.viewModel.deleteCategory(at: index)
         })
-        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.cancel", comment: ""), style: .cancel))
         present(alert, animated: true)
     }
 }
@@ -212,10 +212,10 @@ extension CategoryListViewController: UITableViewDelegate {
         let index = indexPath.row
         return UIContextMenuConfiguration(actionProvider: { [weak self] _ in
             UIMenu(children: [
-                UIAction(title: "Редактировать") { _ in
+                UIAction(title: NSLocalizedString("menu.edit", comment: "")) { _ in
                     self?.editCategory(at: index)
                 },
-                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                UIAction(title: NSLocalizedString("menu.delete", comment: ""), attributes: .destructive) { _ in
                     self?.confirmDeleteCategory(at: index)
                 }
             ])

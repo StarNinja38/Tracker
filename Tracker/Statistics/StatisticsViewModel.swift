@@ -49,10 +49,10 @@ final class StatisticsViewModel {
         }
         let trackers = trackerStore.categories.flatMap(\.trackers)
         onItemsChange?([
-            StatisticsItem(value: bestPeriod(records), title: "Лучший период"),
-            StatisticsItem(value: idealDays(records, trackers: trackers), title: "Идеальные дни"),
-            StatisticsItem(value: records.count, title: "Трекеров завершено"),
-            StatisticsItem(value: average(records), title: "Среднее значение")
+            StatisticsItem(value: bestPeriod(records), title: NSLocalizedString("statistics.bestPeriod", comment: "")),
+            StatisticsItem(value: idealDays(records, trackers: trackers), title: NSLocalizedString("statistics.idealDays", comment: "")),
+            StatisticsItem(value: records.count, title: NSLocalizedString("statistics.completed", comment: "")),
+            StatisticsItem(value: average(records), title: NSLocalizedString("statistics.average", comment: ""))
         ])
     }
 

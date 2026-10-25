@@ -86,13 +86,13 @@ final class TrackersViewController: UIViewController {
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: NSLocalizedString("common.error", comment: ""), message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 
     private func setupNavigationBar() {
-        title = "Трекеры"
+        title = NSLocalizedString("main.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
 
         // обычный UIBarButtonItem рисует круглый фон, а в макете его нет
@@ -108,13 +108,12 @@ final class TrackersViewController: UIViewController {
 
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.date = viewModel.currentDate
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
 
         searchController.searchResultsUpdater = self
-        searchController.searchBar.placeholder = "Поиск"
+        searchController.searchBar.placeholder = NSLocalizedString("main.search", comment: "")
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
@@ -168,7 +167,7 @@ final class TrackersViewController: UIViewController {
     }
 
     private func setupFilterButton() {
-        filterButton.setTitle("Фильтры", for: .normal)
+        filterButton.setTitle(NSLocalizedString("main.filters", comment: ""), for: .normal)
         filterButton.titleLabel?.font = .systemFont(ofSize: 17)
         filterButton.setTitleColor(.white, for: .normal)
         filterButton.backgroundColor = UIColor(resource: .ypBlue)
@@ -217,13 +216,13 @@ final class TrackersViewController: UIViewController {
         guard let trackerId = viewModel.trackerId(at: indexPath) else { return }
         let alert = UIAlertController(
             title: nil,
-            message: "Уверены что хотите удалить трекер?",
+            message: NSLocalizedString("alert.deleteTracker", comment: ""),
             preferredStyle: .actionSheet
         )
-        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: NSLocalizedString("menu.delete", comment: ""), style: .destructive) { [weak self] _ in
             self?.viewModel.deleteTracker(id: trackerId)
         })
-        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.cancel", comment: ""), style: .cancel))
         present(alert, animated: true)
     }
 
@@ -308,10 +307,10 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
                 UIAction(title: pinTitle) { _ in
                     self?.viewModel.didTogglePin(at: indexPath)
                 },
-                UIAction(title: "Редактировать") { _ in
+                UIAction(title: NSLocalizedString("menu.edit", comment: "")) { _ in
                     self?.editTracker(at: indexPath)
                 },
-                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                UIAction(title: NSLocalizedString("menu.delete", comment: ""), attributes: .destructive) { _ in
                     self?.confirmDeleteTracker(at: indexPath)
                 }
             ])

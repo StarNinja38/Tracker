@@ -17,8 +17,8 @@ final class NewTrackerViewModel {
 
         var title: String {
             switch self {
-            case .category: "Категория"
-            case .schedule: "Расписание"
+            case .category: NSLocalizedString("newTracker.category", comment: "")
+            case .schedule: NSLocalizedString("newTracker.schedule", comment: "")
             }
         }
     }
@@ -74,12 +74,12 @@ final class NewTrackerViewModel {
         switch mode {
         case .create:
             screenTitle = type.screenTitle
-            saveButtonTitle = "Создать"
+            saveButtonTitle = NSLocalizedString("newTracker.create", comment: "")
             completedDaysText = nil
             initialTitle = ""
         case .edit(let tracker, let categoryTitle, let completedDays):
             screenTitle = type.editScreenTitle
-            saveButtonTitle = "Сохранить"
+            saveButtonTitle = NSLocalizedString("newTracker.save", comment: "")
             completedDaysText = TrackerCell.daysText(completedDays)
             initialTitle = tracker.title
             title = tracker.title
@@ -195,7 +195,7 @@ final class NewTrackerViewModel {
             return selectedCategory
         case .schedule:
             guard !selectedSchedule.isEmpty else { return nil }
-            if selectedSchedule.count == WeekDay.allCases.count { return "Каждый день" }
+            if selectedSchedule.count == WeekDay.allCases.count { return NSLocalizedString("newTracker.everyDay", comment: "") }
             return WeekDay.displayOrder
                 .filter { selectedSchedule.contains($0) }
                 .map(\.shortName)

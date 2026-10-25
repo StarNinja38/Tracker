@@ -34,7 +34,7 @@ final class NewTrackerViewController: UIViewController {
         var title: String {
             switch self {
             case .emoji: "Emoji"
-            case .color: "Цвет"
+            case .color: NSLocalizedString("newTracker.color", comment: "")
             }
         }
     }
@@ -121,7 +121,7 @@ final class NewTrackerViewController: UIViewController {
 
     private func setupTextField() {
         titleTextField.text = viewModel.initialTitle
-        titleTextField.placeholder = "Введите название трекера"
+        titleTextField.placeholder = NSLocalizedString("newTracker.placeholder", comment: "")
         titleTextField.font = .systemFont(ofSize: 17)
         titleTextField.backgroundColor = UIColor(resource: .ypBackground)
         titleTextField.layer.cornerRadius = Layout.cornerRadius
@@ -231,7 +231,7 @@ final class NewTrackerViewController: UIViewController {
     }
 
     private func setupButtons() {
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(NSLocalizedString("common.cancel", comment: ""), for: .normal)
         cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         cancelButton.setTitleColor(UIColor(resource: .ypRed), for: .normal)
         cancelButton.backgroundColor = UIColor(resource: .ypWhite)
