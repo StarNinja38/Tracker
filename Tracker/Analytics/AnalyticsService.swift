@@ -1,5 +1,6 @@
 import AppMetricaCore
 import Foundation
+import os
 
 // MARK: - Analytics
 
@@ -30,6 +31,7 @@ protocol AnalyticsServiceProtocol {
 final class AnalyticsService: AnalyticsServiceProtocol {
 
     private static let apiKeyInfoKey = "AppMetricaAPIKey"
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Tracker", category: "analytics")
 
     // ключ лежит в Info.plist, без ключа события только пишутся в лог
     static func activate() {
@@ -38,7 +40,7 @@ final class AnalyticsService: AnalyticsServiceProtocol {
             !apiKey.isEmpty,
             let configuration = AppMetricaConfiguration(apiKey: apiKey)
         else {
-            print("AppMetrica: нет API ключа в Info.plist, события не отправляются")
+            logger.warning("AppMetrica: нет API ключа, события не отправляются")
             return
         }
         AppMetrica.activate(with: configuration)
@@ -52,9 +54,9 @@ final class AnalyticsService: AnalyticsServiceProtocol {
         if let item {
             parameters["item"] = item.rawValue
         }
-        print("analytics:", parameters)
+        Self.logger.debug("analytics: \(parameters, privacy: .public)")
         AppMetrica.reportEvent(name: "ui_event", parameters: parameters) { error in
-            print("analytics error:", error.localizedDescription)
+            Self.logger.error("analytics error: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
