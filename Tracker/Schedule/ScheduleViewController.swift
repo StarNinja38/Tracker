@@ -64,7 +64,7 @@ final class ScheduleViewController: UIViewController {
         doneButton.backgroundColor = UIColor(resource: .ypBlack)
         doneButton.layer.cornerRadius = Layout.cornerRadius
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
-        doneButton.accessibilityIdentifier = "schedule done"
+        doneButton.accessibilityIdentifier = AccessibilityIdentifiers.scheduleDoneButton
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(doneButton)
         NSLayoutConstraint.activate([

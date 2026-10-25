@@ -58,7 +58,9 @@ final class TrackerCell: UICollectionViewCell {
         plusButton.backgroundColor = tracker.color
         plusButton.alpha = isCompleted ? 0.3 : 1
         plusButton.isEnabled = isEnabled
-        plusButton.accessibilityIdentifier = isCompleted ? "tracker done" : "tracker undone"
+        plusButton.accessibilityIdentifier = isCompleted
+            ? AccessibilityIdentifiers.trackerDoneButton
+            : AccessibilityIdentifiers.trackerUndoneButton
     }
 
     // склонение: 1 день, 2 дня, 5 дней

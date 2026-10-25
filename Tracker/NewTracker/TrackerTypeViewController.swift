@@ -35,10 +35,10 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     private func setupButtons() {
-        let habitButton = makeButton(title: "Привычка", identifier: "habit")
+        let habitButton = makeButton(title: "Привычка", identifier: AccessibilityIdentifiers.habitButton)
         habitButton.addTarget(self, action: #selector(didTapHabit), for: .touchUpInside)
 
-        let eventButton = makeButton(title: "Нерегулярное событие", identifier: "irregular event")
+        let eventButton = makeButton(title: "Нерегулярное событие", identifier: AccessibilityIdentifiers.irregularEventButton)
         eventButton.addTarget(self, action: #selector(didTapIrregularEvent), for: .touchUpInside)
 
         let stack = UIStackView(arrangedSubviews: [habitButton, eventButton])

@@ -31,6 +31,6 @@ final class EmojiCell: UICollectionViewCell {
     func configure(emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji
         contentView.backgroundColor = isSelected ? UIColor(resource: .ypLightGray) : .clear
-        accessibilityIdentifier = "emoji \(emoji)"
+        accessibilityIdentifier = AccessibilityIdentifiers.emojiCell(emoji)
     }
 }

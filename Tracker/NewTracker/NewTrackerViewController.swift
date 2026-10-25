@@ -124,7 +124,7 @@ final class NewTrackerViewController: UIViewController {
         titleTextField.layer.masksToBounds = true
         titleTextField.delegate = self
         titleTextField.clearButtonMode = .whileEditing
-        titleTextField.accessibilityIdentifier = "tracker title"
+        titleTextField.accessibilityIdentifier = AccessibilityIdentifiers.trackerTitleField
         titleTextField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
 
         let padding = UIView(frame: CGRect(x: 0, y: 0, width: Layout.sideInset, height: Layout.textFieldHeight))
@@ -172,7 +172,7 @@ final class NewTrackerViewController: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TrackerCategoryHeaderView.reuseIdentifier
         )
-        selectionCollectionView.accessibilityIdentifier = "selection collection"
+        selectionCollectionView.accessibilityIdentifier = AccessibilityIdentifiers.selectionCollection
         selectionCollectionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(selectionCollectionView)
         NSLayoutConstraint.activate([
@@ -212,14 +212,14 @@ final class NewTrackerViewController: UIViewController {
         cancelButton.layer.borderColor = UIColor(resource: .ypRed).cgColor
         cancelButton.layer.cornerRadius = Layout.cornerRadius
         cancelButton.addTarget(self, action: #selector(didTapCancel), for: .touchUpInside)
-        cancelButton.accessibilityIdentifier = "cancel tracker"
+        cancelButton.accessibilityIdentifier = AccessibilityIdentifiers.cancelTrackerButton
 
         createButton.setTitle("Создать", for: .normal)
         createButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         createButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         createButton.layer.cornerRadius = Layout.cornerRadius
         createButton.addTarget(self, action: #selector(didTapCreate), for: .touchUpInside)
-        createButton.accessibilityIdentifier = "create tracker"
+        createButton.accessibilityIdentifier = AccessibilityIdentifiers.createTrackerButton
 
         let stack = UIStackView(arrangedSubviews: [cancelButton, createButton])
         stack.axis = .horizontal
@@ -367,7 +367,7 @@ extension NewTrackerViewController: UICollectionViewDataSource {
             cell.configure(
                 color: UIColor(resource: viewModel.colors[indexPath.item]),
                 isSelected: indexPath.item == viewModel.selectedColorIndex,
-                identifier: "Color selection \(indexPath.item + 1)"
+                identifier: AccessibilityIdentifiers.colorCell(indexPath.item + 1)
             )
             return cell
 

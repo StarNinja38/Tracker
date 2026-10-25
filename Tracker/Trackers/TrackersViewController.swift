@@ -87,7 +87,7 @@ final class TrackersViewController: UIViewController {
             for: .normal
         )
         addButton.tintColor = UIColor(resource: .ypBlack)
-        addButton.accessibilityIdentifier = "add tracker"
+        addButton.accessibilityIdentifier = AccessibilityIdentifiers.addTrackerButton
         addButton.addTarget(self, action: #selector(didTapAddTracker), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addButton)
 
@@ -115,7 +115,7 @@ final class TrackersViewController: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TrackerCategoryHeaderView.reuseIdentifier
         )
-        collectionView.accessibilityIdentifier = "trackers collection"
+        collectionView.accessibilityIdentifier = AccessibilityIdentifiers.trackersCollection
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([

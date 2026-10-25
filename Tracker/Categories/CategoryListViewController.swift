@@ -77,7 +77,7 @@ final class CategoryListViewController: UIViewController {
         addButton.backgroundColor = UIColor(resource: .ypBlack)
         addButton.layer.cornerRadius = Layout.cornerRadius
         addButton.addTarget(self, action: #selector(didTapAddCategory), for: .touchUpInside)
-        addButton.accessibilityIdentifier = "add category"
+        addButton.accessibilityIdentifier = AccessibilityIdentifiers.addCategoryButton
         addButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(addButton)
         NSLayoutConstraint.activate([
@@ -98,7 +98,7 @@ final class CategoryListViewController: UIViewController {
         tableView.separatorInset = UIEdgeInsets(top: 0, left: Layout.sideInset, bottom: 0, right: Layout.sideInset)
         tableView.tableFooterView = UIView()
         tableView.showsVerticalScrollIndicator = false
-        tableView.accessibilityIdentifier = "categories table"
+        tableView.accessibilityIdentifier = AccessibilityIdentifiers.categoriesTable
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         NSLayoutConstraint.activate([

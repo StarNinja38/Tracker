@@ -78,7 +78,7 @@ final class CategoryFormViewController: UIViewController {
         titleTextField.clearButtonMode = .whileEditing
         titleTextField.returnKeyType = .done
         titleTextField.delegate = self
-        titleTextField.accessibilityIdentifier = "category title"
+        titleTextField.accessibilityIdentifier = AccessibilityIdentifiers.categoryTitleField
         titleTextField.addTarget(self, action: #selector(titleChanged), for: .editingChanged)
 
         let padding = UIView(frame: CGRect(x: 0, y: 0, width: Layout.sideInset, height: Layout.textFieldHeight))
@@ -115,7 +115,7 @@ final class CategoryFormViewController: UIViewController {
         doneButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         doneButton.layer.cornerRadius = Layout.cornerRadius
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
-        doneButton.accessibilityIdentifier = "category done"
+        doneButton.accessibilityIdentifier = AccessibilityIdentifiers.categoryDoneButton
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(doneButton)
         NSLayoutConstraint.activate([

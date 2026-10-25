@@ -66,7 +66,7 @@ final class OnboardingViewController: UIPageViewController {
         actionButton.backgroundColor = .black
         actionButton.layer.cornerRadius = Layout.buttonCornerRadius
         actionButton.addTarget(self, action: #selector(didTapActionButton), for: .touchUpInside)
-        actionButton.accessibilityIdentifier = "onboarding finish"
+        actionButton.accessibilityIdentifier = AccessibilityIdentifiers.onboardingFinishButton
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(actionButton)
 
