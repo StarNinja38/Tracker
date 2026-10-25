@@ -35,7 +35,7 @@ final class CategoryCell: UITableViewCell {
         contentView.addSubview(titleLabel)
 
         checkmarkImageView.image = UIImage(
-            systemName: "checkmark",
+            systemName: SystemImage.checkmark,
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold)
         )
         checkmarkImageView.tintColor = UIColor(resource: .ypBlue)

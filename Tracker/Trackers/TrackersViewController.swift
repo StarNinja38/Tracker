@@ -83,7 +83,7 @@ final class TrackersViewController: UIViewController {
         // обычный UIBarButtonItem рисует круглый фон, а в макете его нет
         let addButton = UIButton(type: .system)
         addButton.setImage(
-            UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .bold)),
+            UIImage(systemName: SystemImage.plus, withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .bold)),
             for: .normal
         )
         addButton.tintColor = UIColor(resource: .ypBlack)

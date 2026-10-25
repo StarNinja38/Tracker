@@ -53,7 +53,7 @@ final class TrackerCell: UICollectionViewCell {
         titleLabel.text = tracker.title
         counterLabel.text = Self.daysText(completedDays)
 
-        let symbolName = isCompleted ? "checkmark" : "plus"
+        let symbolName = isCompleted ? SystemImage.checkmark : SystemImage.plus
         plusButton.setImage(UIImage(systemName: symbolName), for: .normal)
         plusButton.backgroundColor = tracker.color
         plusButton.alpha = isCompleted ? 0.3 : 1
