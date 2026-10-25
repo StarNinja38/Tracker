@@ -6,6 +6,13 @@ enum TrackerType {
     case habit
     case irregularEvent
 
+    var editScreenTitle: String {
+        switch self {
+        case .habit: "Редактирование привычки"
+        case .irregularEvent: "Редактирование нерегулярного события"
+        }
+    }
+
     var screenTitle: String {
         switch self {
         case .habit: "Новая привычка"
@@ -25,7 +32,7 @@ final class TrackerTypeViewController: UIViewController {
         static let cornerRadius: CGFloat = 16
     }
 
-    var onCreate: ((Tracker, String) -> Void)?
+    var onSave: ((Tracker, String) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +83,7 @@ final class TrackerTypeViewController: UIViewController {
 
     private func showNewTracker(type: TrackerType) {
         let newTracker = NewTrackerViewController(viewModel: NewTrackerViewModel(type: type))
-        newTracker.onCreate = onCreate
+        newTracker.onSave = onSave
         navigationController?.pushViewController(newTracker, animated: true)
     }
 }

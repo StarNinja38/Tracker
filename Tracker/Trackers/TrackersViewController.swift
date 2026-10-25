@@ -151,7 +151,7 @@ final class TrackersViewController: UIViewController {
 
     @objc private func didTapAddTracker() {
         let trackerType = TrackerTypeViewController()
-        trackerType.onCreate = { [weak self] tracker, categoryTitle in
+        trackerType.onSave = { [weak self] tracker, categoryTitle in
             self?.viewModel.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         }
         let navigationController = UINavigationController(rootViewController: trackerType)
@@ -160,6 +160,37 @@ final class TrackersViewController: UIViewController {
 
     @objc private func dateChanged() {
         viewModel.didChangeDate(datePicker.date)
+    }
+
+    private func editTracker(at indexPath: IndexPath) {
+        guard let editViewModel = viewModel.makeEditViewModel(at: indexPath) else { return }
+        let editViewController = NewTrackerViewController(viewModel: editViewModel)
+        editViewController.onSave = { [weak self] tracker, categoryTitle in
+            self?.viewModel.updateTracker(tracker, categoryTitle: categoryTitle)
+        }
+        present(UINavigationController(rootViewController: editViewController), animated: true)
+    }
+
+    private func confirmDeleteTracker(at indexPath: IndexPath) {
+        guard let trackerId = viewModel.trackerId(at: indexPath) else { return }
+        let alert = UIAlertController(
+            title: nil,
+            message: "Уверены что хотите удалить трекер?",
+            preferredStyle: .actionSheet
+        )
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { [weak self] _ in
+            self?.viewModel.deleteTracker(id: trackerId)
+        })
+        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func cardPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard
+            let indexPath = configuration.identifier as? IndexPath,
+            let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell
+        else { return nil }
+        return UITargetedPreview(view: cell.previewView)
     }
 }
 
@@ -222,6 +253,44 @@ extension TrackersViewController: UICollectionViewDataSource {
 // MARK: - UICollectionViewDelegateFlowLayout
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let indexPath = indexPaths.first else { return nil }
+        let pinTitle = viewModel.pinActionTitle(at: indexPath)
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { [weak self] _ in
+            UIMenu(children: [
+                UIAction(title: pinTitle) { _ in
+                    self?.viewModel.didTogglePin(at: indexPath)
+                },
+                UIAction(title: "Редактировать") { _ in
+                    self?.editTracker(at: indexPath)
+                },
+                UIAction(title: "Удалить", attributes: .destructive) { _ in
+                    self?.confirmDeleteTracker(at: indexPath)
+                }
+            ])
+        }
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfiguration configuration: UIContextMenuConfiguration,
+        highlightPreviewForItemAt indexPath: IndexPath
+    ) -> UITargetedPreview? {
+        cardPreview(for: configuration)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfiguration configuration: UIContextMenuConfiguration,
+        dismissalPreviewForItemAt indexPath: IndexPath
+    ) -> UITargetedPreview? {
+        cardPreview(for: configuration)
+    }
 
     func collectionView(
         _ collectionView: UICollectionView,

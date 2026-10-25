@@ -75,8 +75,38 @@ final class TrackerStore: NSObject {
             title: title,
             color: UIColorMarshalling.color(from: colorHex),
             emoji: emoji,
-            schedule: Self.decode(trackerCoreData.schedule ?? "")
+            schedule: Self.decode(trackerCoreData.schedule ?? ""),
+            isPinned: trackerCoreData.isPinned
         )
+    }
+
+    // id, дата создания, закрепление и записи остаются как были
+    func updateTracker(_ tracker: Tracker, categoryTitle: String) throws {
+        guard let trackerCoreData = try trackerCoreData(with: tracker.id) else { return }
+        let categoryStore = TrackerCategoryStore(context: context, trackerStore: self)
+        trackerCoreData.title = tracker.title
+        trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.colorHex = UIColorMarshalling.hexString(from: tracker.color)
+        trackerCoreData.schedule = Self.encode(tracker.schedule)
+        trackerCoreData.category = try categoryStore.categoryCoreData(withTitle: categoryTitle)
+        try context.saveOrRollback()
+    }
+
+    // записи трекера удалятся вместе с ним, в модели стоит Cascade
+    func deleteTracker(id: UUID) throws {
+        guard let trackerCoreData = try trackerCoreData(with: id) else { return }
+        context.delete(trackerCoreData)
+        try context.saveOrRollback()
+    }
+
+    func setPinned(_ isPinned: Bool, forTrackerWith id: UUID) throws {
+        guard let trackerCoreData = try trackerCoreData(with: id) else { return }
+        trackerCoreData.isPinned = isPinned
+        try context.saveOrRollback()
+    }
+
+    func categoryTitle(forTrackerWith id: UUID) throws -> String? {
+        try trackerCoreData(with: id)?.category?.title
     }
 
     func trackerCoreData(with id: UUID) throws -> TrackerCoreData? {

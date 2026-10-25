@@ -16,6 +16,9 @@ final class TrackersViewModel {
     private enum Text {
         static let emptyPlaceholder = "Что будем отслеживать?"
         static let loadError = "Не удалось загрузить трекеры"
+        static let pinned = "Закреплённые"
+        static let pin = "Закрепить"
+        static let unpin = "Открепить"
     }
 
     var onVisibleCategoriesChange: Binding<[TrackerCategory]>?
@@ -91,6 +94,53 @@ final class TrackersViewModel {
         }
     }
 
+    func updateTracker(_ tracker: Tracker, categoryTitle: String) {
+        do {
+            try trackerStore.updateTracker(tracker, categoryTitle: categoryTitle)
+        } catch {
+            onErrorStateChange?("Не удалось сохранить трекер")
+        }
+    }
+
+    // MARK: - Контекстное меню
+
+    func trackerId(at indexPath: IndexPath) -> UUID? {
+        tracker(at: indexPath)?.id
+    }
+
+    func pinActionTitle(at indexPath: IndexPath) -> String {
+        tracker(at: indexPath)?.isPinned == true ? Text.unpin : Text.pin
+    }
+
+    func didTogglePin(at indexPath: IndexPath) {
+        guard let tracker = tracker(at: indexPath) else { return }
+        do {
+            try trackerStore.setPinned(!tracker.isPinned, forTrackerWith: tracker.id)
+        } catch {
+            onErrorStateChange?("Не удалось закрепить трекер")
+        }
+    }
+
+    func deleteTracker(id: UUID) {
+        do {
+            try trackerStore.deleteTracker(id: id)
+        } catch {
+            onErrorStateChange?("Не удалось удалить трекер")
+        }
+    }
+
+    func makeEditViewModel(at indexPath: IndexPath) -> NewTrackerViewModel? {
+        guard
+            let tracker = tracker(at: indexPath),
+            let categoryTitle = categories.first(where: { $0.trackers.contains { $0.id == tracker.id } })?.title
+        else { return nil }
+        return NewTrackerViewModel(
+            editing: tracker,
+            categoryTitle: categoryTitle,
+            completedDays: completedTrackers.filter { $0.trackerId == tracker.id }.count
+        )
+    }
+
     // на будущую дату отмечать нельзя
     func didTapComplete(at indexPath: IndexPath) {
         guard isCurrentDateEditable, let tracker = tracker(at: indexPath) else { return }
@@ -142,10 +192,13 @@ final class TrackersViewModel {
 
     private func reloadVisibleCategories() {
         if let weekDay = WeekDay.from(date: currentDate) {
-            visibleCategories = categories.compactMap { category in
-                let trackers = category.trackers.filter { isVisible($0, weekDay: weekDay) }
+            // закрепленные трекеры уходят из своей категории в отдельную секцию сверху
+            let pinned = categories.flatMap(\.trackers).filter { $0.isPinned && isVisible($0, weekDay: weekDay) }
+            let others: [TrackerCategory] = categories.compactMap { category in
+                let trackers = category.trackers.filter { !$0.isPinned && isVisible($0, weekDay: weekDay) }
                 return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
             }
+            visibleCategories = pinned.isEmpty ? others : [TrackerCategory(title: Text.pinned, trackers: pinned)] + others
         } else {
             visibleCategories = []
         }

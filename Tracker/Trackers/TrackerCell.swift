@@ -22,6 +22,8 @@ final class TrackerCell: UICollectionViewCell {
         static let plusTopInset: CGFloat = 8
         static let plusTrailingInset: CGFloat = 12
         static let counterLeadingInset: CGFloat = 12
+        static let pinSize: CGFloat = 24
+        static let pinInset: CGFloat = 4
     }
 
     weak var delegate: TrackerCellDelegate?
@@ -32,12 +34,19 @@ final class TrackerCell: UICollectionViewCell {
     private let titleLabel = UILabel()
     private let counterLabel = UILabel()
     private let plusButton = UIButton(type: .custom)
+    private let pinImageView = UIImageView()
+
+    // для контекстного меню подсвечиваем только цветную карточку, без счетчика
+    var previewView: UIView {
+        cardView
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupCard()
         setupEmoji()
         setupTitle()
+        setupPin()
         setupCounter()
         setupPlusButton()
     }
@@ -51,6 +60,7 @@ final class TrackerCell: UICollectionViewCell {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         titleLabel.text = tracker.title
+        pinImageView.isHidden = !tracker.isPinned
         counterLabel.text = Self.daysText(completedDays)
 
         let symbolName = isCompleted ? SystemImage.checkmark : SystemImage.plus
@@ -126,6 +136,24 @@ final class TrackerCell: UICollectionViewCell {
             titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: Layout.titleInset),
             titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Layout.titleInset),
             titleLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -Layout.titleInset)
+        ])
+    }
+
+    private func setupPin() {
+        pinImageView.image = UIImage(
+            systemName: SystemImage.pin,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+        )
+        pinImageView.tintColor = .white
+        pinImageView.contentMode = .center
+        pinImageView.isHidden = true
+        pinImageView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(pinImageView)
+        NSLayoutConstraint.activate([
+            pinImageView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Layout.pinInset),
+            pinImageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Layout.pinInset),
+            pinImageView.widthAnchor.constraint(equalToConstant: Layout.pinSize),
+            pinImageView.heightAnchor.constraint(equalToConstant: Layout.pinSize)
         ])
     }
 
