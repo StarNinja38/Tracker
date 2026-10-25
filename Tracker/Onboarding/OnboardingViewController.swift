@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - OnboardingViewController
 
-/// Онбординг из двух страниц: свайп между ними, `UIPageControl` и кнопка перехода в приложение.
 final class OnboardingViewController: UIPageViewController {
 
     private enum Layout {
@@ -13,31 +12,21 @@ final class OnboardingViewController: UIPageViewController {
         static let pageControlBottomOffset: CGFloat = 24
     }
 
-    /// Вызывается, когда пользователь закончил онбординг.
-    var onFinish: (() -> Void)?
+    private let viewModel: OnboardingViewModel
 
-    private lazy var pages: [UIViewController] = [
-        OnboardingPageViewController(
-            titleText: "Отслеживайте только то, что хотите",
-            placeholderColor: UIColor(named: "YP Blue") ?? .systemBlue,
-            backgroundImageName: "onboarding_blue"
-        ),
-        OnboardingPageViewController(
-            titleText: "Даже если это не литры воды и йога",
-            placeholderColor: UIColor(named: "YP Red") ?? .systemRed,
-            backgroundImageName: "onboarding_red"
-        )
-    ]
+    private lazy var pages: [UIViewController] = viewModel.pages.map { OnboardingPageViewController(page: $0) }
 
     private let pageControl = UIPageControl()
     private let actionButton = UIButton(type: .system)
 
-    init() {
+    init(viewModel: OnboardingViewModel) {
+        self.viewModel = viewModel
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     override func viewDidLoad() {
@@ -51,27 +40,33 @@ final class OnboardingViewController: UIPageViewController {
 
         setupPageControl()
         setupActionButton()
+        bind()
     }
 
-    // MARK: Вёрстка кодом
+    private func bind() {
+        viewModel.onPageChange = { [weak self] index in
+            self?.pageControl.currentPage = index
+        }
+    }
 
     private func setupPageControl() {
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
-        pageControl.currentPageIndicatorTintColor = UIColor(named: "YP Black")
-        pageControl.pageIndicatorTintColor = UIColor(named: "YP Black")?.withAlphaComponent(0.3)
+        pageControl.currentPageIndicatorTintColor = .black
+        pageControl.pageIndicatorTintColor = UIColor.black.withAlphaComponent(0.3)
         pageControl.isUserInteractionEnabled = false
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(pageControl)
     }
 
     private func setupActionButton() {
-        actionButton.setTitle("Вот это технологии!", for: .normal)
+        actionButton.setTitle(viewModel.buttonTitle, for: .normal)
         actionButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        actionButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        actionButton.backgroundColor = UIColor(named: "YP Black")
+        actionButton.setTitleColor(.white, for: .normal)
+        actionButton.backgroundColor = .black
         actionButton.layer.cornerRadius = Layout.buttonCornerRadius
         actionButton.addTarget(self, action: #selector(didTapActionButton), for: .touchUpInside)
+        actionButton.accessibilityIdentifier = AccessibilityIdentifiers.onboardingFinishButton
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(actionButton)
 
@@ -87,7 +82,7 @@ final class OnboardingViewController: UIPageViewController {
     }
 
     @objc private func didTapActionButton() {
-        onFinish?()
+        viewModel.didTapFinish()
     }
 }
 
@@ -100,9 +95,7 @@ extension OnboardingViewController: UIPageViewControllerDataSource {
         viewControllerBefore viewController: UIViewController
     ) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController) else { return nil }
-        let previous = index - 1
-        guard previous >= 0 else { return pages.last }   // зацикливаем, как в макете
-        return pages[previous]
+        return pages[viewModel.indexBefore(index)]
     }
 
     func pageViewController(
@@ -110,9 +103,7 @@ extension OnboardingViewController: UIPageViewControllerDataSource {
         viewControllerAfter viewController: UIViewController
     ) -> UIViewController? {
         guard let index = pages.firstIndex(of: viewController) else { return nil }
-        let next = index + 1
-        guard next < pages.count else { return pages.first }
-        return pages[next]
+        return pages[viewModel.indexAfter(index)]
     }
 }
 
@@ -127,9 +118,10 @@ extension OnboardingViewController: UIPageViewControllerDelegate {
         transitionCompleted completed: Bool
     ) {
         guard
+            completed,
             let current = viewControllers?.first,
             let index = pages.firstIndex(of: current)
         else { return }
-        pageControl.currentPage = index
+        viewModel.didShowPage(at: index)
     }
 }

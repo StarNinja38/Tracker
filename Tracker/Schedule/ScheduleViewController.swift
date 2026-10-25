@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - ScheduleViewController
 
-/// Экран «Расписание»: список дней недели с переключателями и кнопка «Готово».
 final class ScheduleViewController: UIViewController {
 
     private enum Layout {
@@ -14,20 +13,24 @@ final class ScheduleViewController: UIViewController {
         static let buttonBottomInset: CGFloat = 16
     }
 
-    /// Дни, выбранные до открытия экрана.
-    var selectedDays: [WeekDay] = []
-
-    /// Возвращает выбор на экран создания привычки.
-    var onDone: (([WeekDay]) -> Void)?
+    private let viewModel: ScheduleViewModel
 
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let doneButton = UIButton(type: .system)
 
-    private let days = WeekDay.displayOrder
+    init(viewModel: ScheduleViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = "Расписание"
         navigationItem.hidesBackButton = true
 
@@ -39,7 +42,7 @@ final class ScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.reuseIdentifier)
-        tableView.backgroundColor = UIColor(named: "YP Background")
+        tableView.backgroundColor = UIColor(resource: .ypBackground)
         tableView.layer.cornerRadius = Layout.cornerRadius
         tableView.layer.masksToBounds = true
         tableView.isScrollEnabled = false
@@ -50,18 +53,18 @@ final class ScheduleViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Layout.tableTopInset),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Layout.sideInset),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Layout.sideInset),
-            tableView.heightAnchor.constraint(equalToConstant: Layout.rowHeight * CGFloat(days.count))
+            tableView.heightAnchor.constraint(equalToConstant: Layout.rowHeight * CGFloat(viewModel.days.count))
         ])
     }
 
     private func setupDoneButton() {
         doneButton.setTitle("Готово", for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        doneButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        doneButton.backgroundColor = UIColor(named: "YP Black")
+        doneButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
+        doneButton.backgroundColor = UIColor(resource: .ypBlack)
         doneButton.layer.cornerRadius = Layout.cornerRadius
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
-        doneButton.accessibilityIdentifier = "schedule done"
+        doneButton.accessibilityIdentifier = AccessibilityIdentifiers.scheduleDoneButton
         doneButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(doneButton)
         NSLayoutConstraint.activate([
@@ -73,7 +76,7 @@ final class ScheduleViewController: UIViewController {
     }
 
     @objc private func didTapDone() {
-        onDone?(selectedDays)
+        viewModel.didTapDone()
         navigationController?.popViewController(animated: true)
     }
 }
@@ -83,7 +86,7 @@ final class ScheduleViewController: UIViewController {
 extension ScheduleViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        days.count
+        viewModel.days.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -94,16 +97,10 @@ extension ScheduleViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let day = days[indexPath.row]
-        cell.configure(day: day, isOn: selectedDays.contains(day))
+        let day = viewModel.days[indexPath.row]
+        cell.configure(day: day, isOn: viewModel.isSelected(day))
         cell.onSwitchChanged = { [weak self] isOn in
-            guard let self else { return }
-            if isOn {
-                guard !self.selectedDays.contains(day) else { return }
-                self.selectedDays.append(day)
-            } else {
-                self.selectedDays.removeAll { $0 == day }
-            }
+            self?.viewModel.setDay(day, isOn: isOn)
         }
         return cell
     }

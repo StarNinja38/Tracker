@@ -2,8 +2,7 @@ import CoreData
 
 // MARK: - CoreDataStack
 
-/// Единственный `NSPersistentContainer` приложения. Им пользуются все три
-/// `Store`, поэтому `import CoreData` за пределами слоя хранения не нужен.
+// один контейнер на все сторы
 final class CoreDataStack {
 
     static let shared = CoreDataStack()
@@ -32,7 +31,6 @@ final class CoreDataStack {
 
 extension NSManagedObjectContext {
 
-    /// Сохраняет изменения, а при ошибке откатывает их и отдаёт ошибку вызывающему.
     func saveOrRollback() throws {
         guard hasChanges else { return }
         do {

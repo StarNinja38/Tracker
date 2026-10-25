@@ -8,8 +8,6 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
 
 // MARK: - TrackerCategoryStore
 
-/// Слой хранения категорий. Наружу отдаёт только модели `TrackerCategory`,
-/// объекты Core Data остаются внутри слоя.
 final class TrackerCategoryStore: NSObject {
 
     weak var delegate: TrackerCategoryStoreDelegate?
@@ -18,7 +16,7 @@ final class TrackerCategoryStore: NSObject {
     private let trackerStore: TrackerStore
     private let fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>
 
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore) {
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context, trackerStore: TrackerStore = TrackerStore()) {
         self.context = context
         self.trackerStore = trackerStore
 
@@ -35,7 +33,6 @@ final class TrackerCategoryStore: NSObject {
         fetchedResultsController.delegate = self
     }
 
-    /// Первое чтение из базы. Ошибка уходит наружу: пустая база и сбой чтения — разные ситуации.
     func performFetch() throws {
         try fetchedResultsController.performFetch()
     }
@@ -44,18 +41,44 @@ final class TrackerCategoryStore: NSObject {
         (fetchedResultsController.fetchedObjects ?? []).map(makeCategory)
     }
 
-    /// Возвращает категорию с таким названием, а если её нет — создаёт.
-    func categoryCoreData(withTitle title: String) throws -> TrackerCategoryCoreData {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
-        request.fetchLimit = 1
+    var categoryTitles: [String] {
+        (fetchedResultsController.fetchedObjects ?? []).compactMap(\.title)
+    }
 
-        if let existing = try context.fetch(request).first {
+    func addCategory(title: String) throws {
+        let category = TrackerCategoryCoreData(context: context)
+        category.title = title
+        try context.saveOrRollback()
+    }
+
+    func renameCategory(_ title: String, to newTitle: String) throws {
+        guard let category = try fetchCategory(withTitle: title) else { return }
+        category.title = newTitle
+        try context.saveOrRollback()
+    }
+
+    // трекеры и записи удалятся вместе с категорией, в модели стоит Cascade
+    func deleteCategory(_ title: String) throws {
+        guard let category = try fetchCategory(withTitle: title) else { return }
+        context.delete(category)
+        try context.saveOrRollback()
+    }
+
+    // если такой категории нет, создаем новую
+    func categoryCoreData(withTitle title: String) throws -> TrackerCategoryCoreData {
+        if let existing = try fetchCategory(withTitle: title) {
             return existing
         }
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
         return category
+    }
+
+    private func fetchCategory(withTitle title: String) throws -> TrackerCategoryCoreData? {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
+        request.fetchLimit = 1
+        return try context.fetch(request).first
     }
 
     private func makeCategory(from categoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {

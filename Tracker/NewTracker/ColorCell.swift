@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - ColorCell
 
-/// Цвет в сетке выбора. Выбранный обводится рамкой того же цвета с прозрачностью 30%.
+// у выбранного цвета рамка того же цвета с прозрачностью 0.3
 final class ColorCell: UICollectionViewCell {
 
     static let reuseIdentifier = "ColorCell"
@@ -32,8 +32,9 @@ final class ColorCell: UICollectionViewCell {
         ])
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     func configure(color: UIColor, isSelected: Bool, identifier: String) {

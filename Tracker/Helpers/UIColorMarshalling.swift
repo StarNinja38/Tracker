@@ -2,8 +2,7 @@ import UIKit
 
 // MARK: - UIColorMarshalling
 
-/// `UIColor` нельзя положить в Core Data как есть, поэтому цвет хранится
-/// hex-строкой вида `#FD4C49`.
+// UIColor в Core Data не сохранить, поэтому храню hex строкой
 enum UIColorMarshalling {
 
     static func hexString(from color: UIColor) -> String {

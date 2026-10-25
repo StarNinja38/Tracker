@@ -4,9 +4,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    private enum Defaults {
-        static let onboardingShown = "onboardingShown"
-    }
+    private let onboardingStorage = OnboardingStorage()
 
     func scene(
         _ scene: UIScene,
@@ -21,15 +19,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = window
     }
 
-    /// Онбординг показывается один раз — при первом запуске.
+    // онбординг показываем только при первом запуске
     private func makeRootViewController() -> UIViewController {
-        guard UserDefaults.standard.bool(forKey: Defaults.onboardingShown) else {
-            let onboarding = OnboardingViewController()
-            onboarding.onFinish = { [weak self] in
-                UserDefaults.standard.set(true, forKey: Defaults.onboardingShown)
+        guard onboardingStorage.isOnboardingShown else {
+            let viewModel = OnboardingViewModel(storage: onboardingStorage)
+            viewModel.onFinish = { [weak self] in
                 self?.switchToTabBar()
             }
-            return onboarding
+            return OnboardingViewController(viewModel: viewModel)
         }
         return TabBarController()
     }

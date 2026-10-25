@@ -2,22 +2,20 @@ import UIKit
 
 // MARK: - TrackerType
 
-/// Что создаёт пользователь: привычку с расписанием или нерегулярное событие без него.
 enum TrackerType {
     case habit
     case irregularEvent
 
     var screenTitle: String {
         switch self {
-        case .habit: return "Новая привычка"
-        case .irregularEvent: return "Новое нерегулярное событие"
+        case .habit: "Новая привычка"
+        case .irregularEvent: "Новое нерегулярное событие"
         }
     }
 }
 
 // MARK: - TrackerTypeViewController
 
-/// Шторка после нажатия «+»: выбор между привычкой и нерегулярным событием.
 final class TrackerTypeViewController: UIViewController {
 
     private enum Layout {
@@ -27,21 +25,20 @@ final class TrackerTypeViewController: UIViewController {
         static let cornerRadius: CGFloat = 16
     }
 
-    /// Отдаёт созданный трекер главному экрану.
-    var onCreate: ((Tracker) -> Void)?
+    var onCreate: ((Tracker, String) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = "Создание трекера"
         setupButtons()
     }
 
     private func setupButtons() {
-        let habitButton = makeButton(title: "Привычка", identifier: "habit")
+        let habitButton = makeButton(title: "Привычка", identifier: AccessibilityIdentifiers.habitButton)
         habitButton.addTarget(self, action: #selector(didTapHabit), for: .touchUpInside)
 
-        let eventButton = makeButton(title: "Нерегулярное событие", identifier: "irregular event")
+        let eventButton = makeButton(title: "Нерегулярное событие", identifier: AccessibilityIdentifiers.irregularEventButton)
         eventButton.addTarget(self, action: #selector(didTapIrregularEvent), for: .touchUpInside)
 
         let stack = UIStackView(arrangedSubviews: [habitButton, eventButton])
@@ -62,8 +59,8 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
+        button.backgroundColor = UIColor(resource: .ypBlack)
         button.layer.cornerRadius = Layout.cornerRadius
         button.accessibilityIdentifier = identifier
         return button
@@ -78,7 +75,7 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     private func showNewTracker(type: TrackerType) {
-        let newTracker = NewTrackerViewController(type: type)
+        let newTracker = NewTrackerViewController(viewModel: NewTrackerViewModel(type: type))
         newTracker.onCreate = onCreate
         navigationController?.pushViewController(newTracker, animated: true)
     }

@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - EmojiCell
 
-/// Эмодзи в сетке выбора. Выбранная получает серую подложку.
 final class EmojiCell: UICollectionViewCell {
 
     static let reuseIdentifier = "EmojiCell"
@@ -24,13 +23,14 @@ final class EmojiCell: UICollectionViewCell {
         ])
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     func configure(emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji
-        contentView.backgroundColor = isSelected ? UIColor(named: "YP LightGray") : .clear
-        accessibilityIdentifier = "emoji \(emoji)"
+        contentView.backgroundColor = isSelected ? UIColor(resource: .ypLightGray) : .clear
+        accessibilityIdentifier = AccessibilityIdentifiers.emojiCell(emoji)
     }
 }

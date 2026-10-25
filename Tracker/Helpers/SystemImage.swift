@@ -1,0 +1,8 @@
+import Foundation
+
+enum SystemImage {
+    static let plus = "plus"
+    static let checkmark = "checkmark"
+    static let trackersTab = "record.circle.fill"
+    static let statisticsTab = "hare.fill"
+}

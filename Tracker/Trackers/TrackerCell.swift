@@ -8,8 +8,6 @@ protocol TrackerCellDelegate: AnyObject {
 
 // MARK: - TrackerCell
 
-/// Карточка трекера: цветной прямоугольник с эмодзи и названием,
-/// под ним счётчик дней и кнопка отметки выполнения.
 final class TrackerCell: UICollectionViewCell {
 
     static let reuseIdentifier = "TrackerCell"
@@ -44,11 +42,10 @@ final class TrackerCell: UICollectionViewCell {
         setupPlusButton()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
-
-    // MARK: Конфигурация
 
     func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isEnabled: Bool) {
         cardView.backgroundColor = tracker.color
@@ -56,16 +53,17 @@ final class TrackerCell: UICollectionViewCell {
         titleLabel.text = tracker.title
         counterLabel.text = Self.daysText(completedDays)
 
-        let symbolName = isCompleted ? "checkmark" : "plus"
+        let symbolName = isCompleted ? SystemImage.checkmark : SystemImage.plus
         plusButton.setImage(UIImage(systemName: symbolName), for: .normal)
         plusButton.backgroundColor = tracker.color
         plusButton.alpha = isCompleted ? 0.3 : 1
-        // Кнопка недоступна для будущих дат — отметить наперёд нельзя.
         plusButton.isEnabled = isEnabled
-        plusButton.accessibilityIdentifier = isCompleted ? "tracker done" : "tracker undone"
+        plusButton.accessibilityIdentifier = isCompleted
+            ? AccessibilityIdentifiers.trackerDoneButton
+            : AccessibilityIdentifiers.trackerUndoneButton
     }
 
-    /// «5 дней» / «1 день» / «2 дня» — склонение по правилам русского языка.
+    // склонение: 1 день, 2 дня, 5 дней
     static func daysText(_ count: Int) -> String {
         let remainder100 = count % 100
         let remainder10 = count % 10
@@ -81,8 +79,6 @@ final class TrackerCell: UICollectionViewCell {
         }
         return "\(count) \(word)"
     }
-
-    // MARK: Вёрстка кодом
 
     private func setupCard() {
         cardView.layer.cornerRadius = Layout.cardCornerRadius
@@ -135,7 +131,7 @@ final class TrackerCell: UICollectionViewCell {
 
     private func setupCounter() {
         counterLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        counterLabel.textColor = UIColor(named: "YP Black")
+        counterLabel.textColor = UIColor(resource: .ypBlack)
         counterLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(counterLabel)
         NSLayoutConstraint.activate([

@@ -2,7 +2,6 @@ import UIKit
 
 // MARK: - TrackerCategoryHeaderView
 
-/// Заголовок секции — название категории.
 final class TrackerCategoryHeaderView: UICollectionReusableView {
 
     static let reuseIdentifier = "TrackerCategoryHeaderView"
@@ -12,7 +11,7 @@ final class TrackerCategoryHeaderView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
-        titleLabel.textColor = UIColor(named: "YP Black")
+        titleLabel.textColor = UIColor(resource: .ypBlack)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
@@ -22,8 +21,9 @@ final class TrackerCategoryHeaderView: UICollectionReusableView {
         ])
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     func configure(title: String) {
