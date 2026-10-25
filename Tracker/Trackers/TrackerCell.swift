@@ -141,7 +141,7 @@ final class TrackerCell: UICollectionViewCell {
     }
 
     private func setupPlusButton() {
-        plusButton.tintColor = .white
+        plusButton.tintColor = UIColor(resource: .ypWhite)
         plusButton.layer.cornerRadius = Layout.plusButtonSize / 2
         plusButton.layer.masksToBounds = true
         plusButton.addTarget(self, action: #selector(didTapPlus), for: .touchUpInside)

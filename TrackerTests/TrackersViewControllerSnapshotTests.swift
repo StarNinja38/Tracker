@@ -15,6 +15,14 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
         assertMainScreenSnapshot(withTrackers: true, style: .light)
     }
 
+    func testEmptyMainScreenDark() {
+        assertMainScreenSnapshot(withTrackers: false, style: .dark)
+    }
+
+    func testMainScreenWithTrackersDark() {
+        assertMainScreenSnapshot(withTrackers: true, style: .dark)
+    }
+
     // снимаю окно целиком: обычный снимок контроллера не рисует кнопки в навбаре
     private func assertMainScreenSnapshot(
         withTrackers: Bool,
@@ -25,7 +33,7 @@ final class TrackersViewControllerSnapshotTests: XCTestCase {
     ) {
         let window = makeWindow()
         let viewController = makeMainScreen(withTrackers: withTrackers)
-        window.overrideUserInterfaceStyle = style
+        viewController.overrideUserInterfaceStyle = style
         window.rootViewController = viewController
         window.makeKeyAndVisible()
         RunLoop.main.run(until: Date().addingTimeInterval(0.5))
