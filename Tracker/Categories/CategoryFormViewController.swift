@@ -33,7 +33,7 @@ final class CategoryFormViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = viewModel.screenTitle
         navigationItem.hidesBackButton = true
 
@@ -65,14 +65,14 @@ final class CategoryFormViewController: UIViewController {
 
     private func setDoneButton(enabled: Bool) {
         doneButton.isEnabled = enabled
-        doneButton.backgroundColor = UIColor(named: enabled ? "YP Black" : "YP Gray")
+        doneButton.backgroundColor = UIColor(resource: enabled ? .ypBlack : .ypGray)
     }
 
     private func setupTextField() {
         titleTextField.text = viewModel.initialText
         titleTextField.placeholder = viewModel.placeholder
         titleTextField.font = .systemFont(ofSize: 17)
-        titleTextField.backgroundColor = UIColor(named: "YP Background")
+        titleTextField.backgroundColor = UIColor(resource: .ypBackground)
         titleTextField.layer.cornerRadius = Layout.cornerRadius
         titleTextField.layer.masksToBounds = true
         titleTextField.clearButtonMode = .whileEditing
@@ -97,7 +97,7 @@ final class CategoryFormViewController: UIViewController {
 
     private func setupErrorLabel() {
         errorLabel.font = .systemFont(ofSize: 17)
-        errorLabel.textColor = UIColor(named: "YP Red")
+        errorLabel.textColor = UIColor(resource: .ypRed)
         errorLabel.textAlignment = .center
         errorLabel.isHidden = true
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ final class CategoryFormViewController: UIViewController {
     private func setupDoneButton() {
         doneButton.setTitle("Готово", for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        doneButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
+        doneButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         doneButton.layer.cornerRadius = Layout.cornerRadius
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         doneButton.accessibilityIdentifier = "category done"

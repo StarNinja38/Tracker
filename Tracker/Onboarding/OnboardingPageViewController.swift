@@ -31,7 +31,7 @@ final class OnboardingPageViewController: UIViewController {
     }
 
     private func setupBackground() {
-        backgroundImageView.image = UIImage(named: page.backgroundImageName)
+        backgroundImageView.image = UIImage(resource: page.backgroundImage)
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false

@@ -30,7 +30,7 @@ final class ScheduleViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = "Расписание"
         navigationItem.hidesBackButton = true
 
@@ -42,7 +42,7 @@ final class ScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.reuseIdentifier)
-        tableView.backgroundColor = UIColor(named: "YP Background")
+        tableView.backgroundColor = UIColor(resource: .ypBackground)
         tableView.layer.cornerRadius = Layout.cornerRadius
         tableView.layer.masksToBounds = true
         tableView.isScrollEnabled = false
@@ -60,8 +60,8 @@ final class ScheduleViewController: UIViewController {
     private func setupDoneButton() {
         doneButton.setTitle("Готово", for: .normal)
         doneButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        doneButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        doneButton.backgroundColor = UIColor(named: "YP Black")
+        doneButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
+        doneButton.backgroundColor = UIColor(resource: .ypBlack)
         doneButton.layer.cornerRadius = Layout.cornerRadius
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         doneButton.accessibilityIdentifier = "schedule done"

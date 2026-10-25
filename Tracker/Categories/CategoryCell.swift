@@ -26,11 +26,11 @@ final class CategoryCell: UITableViewCell {
     }
 
     private func setupCell() {
-        backgroundColor = UIColor(named: "YP Background")
+        backgroundColor = UIColor(resource: .ypBackground)
         selectionStyle = .none
 
         titleLabel.font = .systemFont(ofSize: 17)
-        titleLabel.textColor = UIColor(named: "YP Black")
+        titleLabel.textColor = UIColor(resource: .ypBlack)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
 
@@ -38,7 +38,7 @@ final class CategoryCell: UITableViewCell {
             systemName: "checkmark",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold)
         )
-        checkmarkImageView.tintColor = UIColor(named: "YP Blue")
+        checkmarkImageView.tintColor = UIColor(resource: .ypBlue)
         checkmarkImageView.contentMode = .scaleAspectFit
         checkmarkImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(checkmarkImageView)

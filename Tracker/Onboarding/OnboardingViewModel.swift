@@ -1,10 +1,10 @@
-import Foundation
+import UIKit
 
 // MARK: - OnboardingPage
 
 struct OnboardingPage {
     let title: String
-    let backgroundImageName: String
+    let backgroundImage: ImageResource
 }
 
 // MARK: - OnboardingStorage
@@ -35,8 +35,8 @@ final class OnboardingViewModel {
     var onFinish: (() -> Void)?
 
     let pages = [
-        OnboardingPage(title: "Отслеживайте только то, что хотите", backgroundImageName: "onboarding_blue"),
-        OnboardingPage(title: "Даже если это не литры воды и йога", backgroundImageName: "onboarding_red")
+        OnboardingPage(title: "Отслеживайте только то, что хотите", backgroundImage: .onboardingBlue),
+        OnboardingPage(title: "Даже если это не литры воды и йога", backgroundImage: .onboardingRed)
     ]
 
     let buttonTitle = "Вот это технологии!"

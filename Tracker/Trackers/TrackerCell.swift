@@ -129,7 +129,7 @@ final class TrackerCell: UICollectionViewCell {
 
     private func setupCounter() {
         counterLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        counterLabel.textColor = UIColor(named: "YP Black")
+        counterLabel.textColor = UIColor(resource: .ypBlack)
         counterLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(counterLabel)
         NSLayoutConstraint.activate([

@@ -40,7 +40,7 @@ final class TrackersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
 
         setupNavigationBar()
         setupCollectionView()
@@ -86,7 +86,7 @@ final class TrackersViewController: UIViewController {
             UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .bold)),
             for: .normal
         )
-        addButton.tintColor = UIColor(named: "YP Black")
+        addButton.tintColor = UIColor(resource: .ypBlack)
         addButton.accessibilityIdentifier = "add tracker"
         addButton.addTarget(self, action: #selector(didTapAddTracker), for: .touchUpInside)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addButton)
@@ -127,13 +127,13 @@ final class TrackersViewController: UIViewController {
     }
 
     private func setupPlaceholder() {
-        placeholderImageView.image = UIImage(named: "placeholder_star")
+        placeholderImageView.image = UIImage(resource: .placeholderStar)
         placeholderImageView.contentMode = .scaleAspectFit
         placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderImageView)
 
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        placeholderLabel.textColor = UIColor(named: "YP Black")
+        placeholderLabel.textColor = UIColor(resource: .ypBlack)
         placeholderLabel.textAlignment = .center
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderLabel)

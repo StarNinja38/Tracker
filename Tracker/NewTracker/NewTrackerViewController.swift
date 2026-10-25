@@ -66,7 +66,7 @@ final class NewTrackerViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = viewModel.screenTitle
         navigationItem.hidesBackButton = true
         optionViewModels = viewModel.optionViewModels
@@ -93,7 +93,7 @@ final class NewTrackerViewController: UIViewController {
 
     private func setCreateButton(enabled: Bool) {
         createButton.isEnabled = enabled
-        createButton.backgroundColor = UIColor(named: enabled ? "YP Black" : "YP Gray")
+        createButton.backgroundColor = UIColor(resource: enabled ? .ypBlack : .ypGray)
     }
 
     private func setupScrollView() {
@@ -119,7 +119,7 @@ final class NewTrackerViewController: UIViewController {
     private func setupTextField() {
         titleTextField.placeholder = "Введите название трекера"
         titleTextField.font = .systemFont(ofSize: 17)
-        titleTextField.backgroundColor = UIColor(named: "YP Background")
+        titleTextField.backgroundColor = UIColor(resource: .ypBackground)
         titleTextField.layer.cornerRadius = Layout.cornerRadius
         titleTextField.layer.masksToBounds = true
         titleTextField.delegate = self
@@ -145,7 +145,7 @@ final class NewTrackerViewController: UIViewController {
         optionsTableView.dataSource = self
         optionsTableView.delegate = self
         optionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "OptionCell")
-        optionsTableView.backgroundColor = UIColor(named: "YP Background")
+        optionsTableView.backgroundColor = UIColor(resource: .ypBackground)
         optionsTableView.layer.cornerRadius = Layout.cornerRadius
         optionsTableView.layer.masksToBounds = true
         optionsTableView.isScrollEnabled = false
@@ -199,24 +199,24 @@ final class NewTrackerViewController: UIViewController {
     private func itemsCount(in section: SelectionSection) -> Int {
         switch section {
         case .emoji: return viewModel.emojis.count
-        case .color: return viewModel.colorNames.count
+        case .color: return viewModel.colors.count
         }
     }
 
     private func setupButtons() {
         cancelButton.setTitle("Отменить", for: .normal)
         cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        cancelButton.setTitleColor(UIColor(named: "YP Red"), for: .normal)
-        cancelButton.backgroundColor = UIColor(named: "YP White")
+        cancelButton.setTitleColor(UIColor(resource: .ypRed), for: .normal)
+        cancelButton.backgroundColor = UIColor(resource: .ypWhite)
         cancelButton.layer.borderWidth = 1
-        cancelButton.layer.borderColor = UIColor(named: "YP Red")?.cgColor
+        cancelButton.layer.borderColor = UIColor(resource: .ypRed).cgColor
         cancelButton.layer.cornerRadius = Layout.cornerRadius
         cancelButton.addTarget(self, action: #selector(didTapCancel), for: .touchUpInside)
         cancelButton.accessibilityIdentifier = "cancel tracker"
 
         createButton.setTitle("Создать", for: .normal)
         createButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        createButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
+        createButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         createButton.layer.cornerRadius = Layout.cornerRadius
         createButton.addTarget(self, action: #selector(didTapCreate), for: .touchUpInside)
         createButton.accessibilityIdentifier = "create tracker"
@@ -290,12 +290,12 @@ extension NewTrackerViewController: UITableViewDataSource {
         var configuration = cell.defaultContentConfiguration()
         configuration.text = option.title
         configuration.textProperties.font = .systemFont(ofSize: 17)
-        configuration.textProperties.color = UIColor(named: "YP Black") ?? .label
+        configuration.textProperties.color = UIColor(resource: .ypBlack)
 
         if let subtitle = option.subtitle {
             configuration.secondaryText = subtitle
             configuration.secondaryTextProperties.font = .systemFont(ofSize: 17)
-            configuration.secondaryTextProperties.color = UIColor(named: "YP Gray") ?? .secondaryLabel
+            configuration.secondaryTextProperties.color = UIColor(resource: .ypGray)
         }
 
         cell.contentConfiguration = configuration
@@ -364,11 +364,10 @@ extension NewTrackerViewController: UICollectionViewDataSource {
                 withReuseIdentifier: ColorCell.reuseIdentifier,
                 for: indexPath
             ) as? ColorCell else { return UICollectionViewCell() }
-            let colorName = viewModel.colorNames[indexPath.item]
             cell.configure(
-                color: UIColor(named: colorName) ?? .systemBlue,
+                color: UIColor(resource: viewModel.colors[indexPath.item]),
                 isSelected: indexPath.item == viewModel.selectedColorIndex,
-                identifier: colorName
+                identifier: "Color selection \(indexPath.item + 1)"
             )
             return cell
 

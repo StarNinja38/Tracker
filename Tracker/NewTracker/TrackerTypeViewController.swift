@@ -29,7 +29,7 @@ final class TrackerTypeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = "Создание трекера"
         setupButtons()
     }
@@ -59,8 +59,8 @@ final class TrackerTypeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        button.backgroundColor = UIColor(named: "YP Black")
+        button.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
+        button.backgroundColor = UIColor(resource: .ypBlack)
         button.layer.cornerRadius = Layout.cornerRadius
         button.accessibilityIdentifier = identifier
         return button

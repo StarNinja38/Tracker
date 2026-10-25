@@ -36,7 +36,11 @@ final class NewTrackerViewModel {
         "😇", "😡", "🥶", "🤔", "🙌", "🍔",
         "🥦", "🏓", "🥇", "🎸", "🏝", "😪"
     ]
-    let colorNames = (1...18).map { "Color selection \($0)" }
+    let colors: [ColorResource] = [
+        .colorSelection1, .colorSelection2, .colorSelection3, .colorSelection4, .colorSelection5, .colorSelection6,
+        .colorSelection7, .colorSelection8, .colorSelection9, .colorSelection10, .colorSelection11, .colorSelection12,
+        .colorSelection13, .colorSelection14, .colorSelection15, .colorSelection16, .colorSelection17, .colorSelection18
+    ]
 
     let screenTitle: String
     let options: [Option]
@@ -82,7 +86,7 @@ final class NewTrackerViewModel {
     }
 
     func didSelectColor(at index: Int) {
-        guard colorNames.indices.contains(index) else { return }
+        guard colors.indices.contains(index) else { return }
         selectedColorIndex = index
         updateCreateAllowedState()
     }
@@ -111,7 +115,6 @@ final class NewTrackerViewModel {
             isCreateAllowed,
             let emojiIndex = selectedEmojiIndex,
             let colorIndex = selectedColorIndex,
-            let color = UIColor(named: colorNames[colorIndex]),
             let categoryTitle = selectedCategory
         else { return nil }
 
@@ -119,7 +122,7 @@ final class NewTrackerViewModel {
         let tracker = Tracker(
             id: UUID(),
             title: trimmedTitle,
-            color: color,
+            color: UIColor(resource: colors[colorIndex]),
             emoji: emojis[emojiIndex],
             schedule: type == .habit ? selectedSchedule : []
         )

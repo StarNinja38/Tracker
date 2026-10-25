@@ -35,7 +35,7 @@ final class CategoryListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(named: "YP White")
+        view.backgroundColor = UIColor(resource: .ypWhite)
         title = "Категория"
         navigationItem.hidesBackButton = true
 
@@ -73,8 +73,8 @@ final class CategoryListViewController: UIViewController {
     private func setupAddButton() {
         addButton.setTitle("Добавить категорию", for: .normal)
         addButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        addButton.setTitleColor(UIColor(named: "YP White"), for: .normal)
-        addButton.backgroundColor = UIColor(named: "YP Black")
+        addButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
+        addButton.backgroundColor = UIColor(resource: .ypBlack)
         addButton.layer.cornerRadius = Layout.cornerRadius
         addButton.addTarget(self, action: #selector(didTapAddCategory), for: .touchUpInside)
         addButton.accessibilityIdentifier = "add category"
@@ -94,7 +94,7 @@ final class CategoryListViewController: UIViewController {
         tableView.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseIdentifier)
         tableView.backgroundColor = .clear
         tableView.rowHeight = Layout.rowHeight
-        tableView.separatorColor = UIColor(named: "YP Gray")
+        tableView.separatorColor = UIColor(resource: .ypGray)
         tableView.separatorInset = UIEdgeInsets(top: 0, left: Layout.sideInset, bottom: 0, right: Layout.sideInset)
         tableView.tableFooterView = UIView()
         tableView.showsVerticalScrollIndicator = false
@@ -110,14 +110,14 @@ final class CategoryListViewController: UIViewController {
     }
 
     private func setupPlaceholder() {
-        placeholderImageView.image = UIImage(named: "placeholder_star")
+        placeholderImageView.image = UIImage(resource: .placeholderStar)
         placeholderImageView.contentMode = .scaleAspectFit
         placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(placeholderImageView)
 
         placeholderLabel.text = "Привычки и события можно\nобъединить по смыслу"
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        placeholderLabel.textColor = UIColor(named: "YP Black")
+        placeholderLabel.textColor = UIColor(resource: .ypBlack)
         placeholderLabel.textAlignment = .center
         placeholderLabel.numberOfLines = 0
         placeholderLabel.translatesAutoresizingMaskIntoConstraints = false

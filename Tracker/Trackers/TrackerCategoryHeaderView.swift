@@ -11,7 +11,7 @@ final class TrackerCategoryHeaderView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
-        titleLabel.textColor = UIColor(named: "YP Black")
+        titleLabel.textColor = UIColor(resource: .ypBlack)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
         NSLayoutConstraint.activate([

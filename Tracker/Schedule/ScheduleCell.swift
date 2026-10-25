@@ -32,11 +32,11 @@ final class ScheduleCell: UITableViewCell {
         selectionStyle = .none
 
         dayLabel.font = .systemFont(ofSize: 17)
-        dayLabel.textColor = UIColor(named: "YP Black")
+        dayLabel.textColor = UIColor(resource: .ypBlack)
         dayLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(dayLabel)
 
-        daySwitch.onTintColor = UIColor(named: "YP Blue")
+        daySwitch.onTintColor = UIColor(resource: .ypBlue)
         daySwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
         daySwitch.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(daySwitch)

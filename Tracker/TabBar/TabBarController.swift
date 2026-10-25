@@ -29,14 +29,14 @@ final class TabBarController: UITabBarController {
     }
 
     private func setupAppearance() {
-        tabBar.tintColor = UIColor(named: "YP Blue")
-        tabBar.unselectedItemTintColor = UIColor(named: "YP Gray")
+        tabBar.tintColor = UIColor(resource: .ypBlue)
+        tabBar.unselectedItemTintColor = UIColor(resource: .ypGray)
 
         // линия над таббаром как в макете
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(named: "YP White")
-        appearance.shadowColor = UIColor(named: "YP LightGray")
+        appearance.backgroundColor = UIColor(resource: .ypWhite)
+        appearance.shadowColor = UIColor(resource: .ypLightGray)
         tabBar.standardAppearance = appearance
         tabBar.scrollEdgeAppearance = appearance
     }
