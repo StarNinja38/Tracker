@@ -1,0 +1,4 @@
+// ключ AppMetrica лежит в Secrets.xcconfig, его нет в репозитории
+// чтобы подключить аналитику, скопируй Secrets.example.xcconfig в Secrets.xcconfig и впиши свой ключ
+APPMETRICA_API_KEY =
+#include? "Secrets.xcconfig"

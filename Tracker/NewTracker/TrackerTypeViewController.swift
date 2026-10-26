@@ -6,10 +6,17 @@ enum TrackerType {
     case habit
     case irregularEvent
 
+    var editScreenTitle: String {
+        switch self {
+        case .habit: NSLocalizedString("newTracker.editHabitTitle", comment: "")
+        case .irregularEvent: NSLocalizedString("newTracker.editIrregularTitle", comment: "")
+        }
+    }
+
     var screenTitle: String {
         switch self {
-        case .habit: "Новая привычка"
-        case .irregularEvent: "Новое нерегулярное событие"
+        case .habit: NSLocalizedString("newTracker.habitTitle", comment: "")
+        case .irregularEvent: NSLocalizedString("newTracker.irregularTitle", comment: "")
         }
     }
 }
@@ -25,20 +32,20 @@ final class TrackerTypeViewController: UIViewController {
         static let cornerRadius: CGFloat = 16
     }
 
-    var onCreate: ((Tracker, String) -> Void)?
+    var onSave: ((Tracker, String) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(resource: .ypWhite)
-        title = "Создание трекера"
+        title = NSLocalizedString("trackerType.title", comment: "")
         setupButtons()
     }
 
     private func setupButtons() {
-        let habitButton = makeButton(title: "Привычка", identifier: AccessibilityIdentifiers.habitButton)
+        let habitButton = makeButton(title: NSLocalizedString("trackerType.habit", comment: ""), identifier: AccessibilityIdentifiers.habitButton)
         habitButton.addTarget(self, action: #selector(didTapHabit), for: .touchUpInside)
 
-        let eventButton = makeButton(title: "Нерегулярное событие", identifier: AccessibilityIdentifiers.irregularEventButton)
+        let eventButton = makeButton(title: NSLocalizedString("trackerType.irregular", comment: ""), identifier: AccessibilityIdentifiers.irregularEventButton)
         eventButton.addTarget(self, action: #selector(didTapIrregularEvent), for: .touchUpInside)
 
         let stack = UIStackView(arrangedSubviews: [habitButton, eventButton])
@@ -76,7 +83,7 @@ final class TrackerTypeViewController: UIViewController {
 
     private func showNewTracker(type: TrackerType) {
         let newTracker = NewTrackerViewController(viewModel: NewTrackerViewModel(type: type))
-        newTracker.onCreate = onCreate
+        newTracker.onSave = onSave
         navigationController?.pushViewController(newTracker, animated: true)
     }
 }

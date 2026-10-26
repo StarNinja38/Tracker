@@ -22,6 +22,9 @@ enum AccessibilityIdentifiers {
     static let categoryTitleField = "category title"
     static let categoryDoneButton = "category done"
 
+    static let filtersButton = "filters"
+    static let filtersTable = "filters table"
+
     static func emojiCell(_ emoji: String) -> String {
         "emoji \(emoji)"
     }

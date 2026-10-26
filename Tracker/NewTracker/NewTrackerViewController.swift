@@ -8,6 +8,8 @@ final class NewTrackerViewController: UIViewController {
         static let sideInset: CGFloat = 16
         static let textFieldHeight: CGFloat = 75
         static let textFieldTopInset: CGFloat = 24
+        static let daysTopInset: CGFloat = 24
+        static let daysToTextFieldSpacing: CGFloat = 40
         static let rowHeight: CGFloat = 75
         static let tableTopInset: CGFloat = 24
         static let cornerRadius: CGFloat = 16
@@ -32,17 +34,18 @@ final class NewTrackerViewController: UIViewController {
         var title: String {
             switch self {
             case .emoji: "Emoji"
-            case .color: "Цвет"
+            case .color: NSLocalizedString("newTracker.color", comment: "")
             }
         }
     }
 
-    var onCreate: ((Tracker, String) -> Void)?
+    var onSave: ((Tracker, String) -> Void)?
 
     private let viewModel: NewTrackerViewModel
 
     private let scrollView = UIScrollView()
     private let contentView = UIView()
+    private let completedDaysLabel = UILabel()
     private let titleTextField = UITextField()
     private let optionsTableView = UITableView(frame: .zero, style: .plain)
     private lazy var selectionCollectionView = UICollectionView(
@@ -117,7 +120,8 @@ final class NewTrackerViewController: UIViewController {
     }
 
     private func setupTextField() {
-        titleTextField.placeholder = "Введите название трекера"
+        titleTextField.text = viewModel.initialTitle
+        titleTextField.placeholder = NSLocalizedString("newTracker.placeholder", comment: "")
         titleTextField.font = .systemFont(ofSize: 17)
         titleTextField.backgroundColor = UIColor(resource: .ypBackground)
         titleTextField.layer.cornerRadius = Layout.cornerRadius
@@ -133,8 +137,31 @@ final class NewTrackerViewController: UIViewController {
 
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleTextField)
+
+        // при редактировании сверху счетчик дней, поле опускается под него
+        let textFieldTop: NSLayoutConstraint
+        if let daysText = viewModel.completedDaysText {
+            completedDaysLabel.text = daysText
+            completedDaysLabel.font = .systemFont(ofSize: 32, weight: .bold)
+            completedDaysLabel.textColor = UIColor(resource: .ypBlack)
+            completedDaysLabel.textAlignment = .center
+            completedDaysLabel.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(completedDaysLabel)
+            NSLayoutConstraint.activate([
+                completedDaysLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.daysTopInset),
+                completedDaysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.sideInset),
+                completedDaysLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.sideInset)
+            ])
+            textFieldTop = titleTextField.topAnchor.constraint(
+                equalTo: completedDaysLabel.bottomAnchor,
+                constant: Layout.daysToTextFieldSpacing
+            )
+        } else {
+            textFieldTop = titleTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.textFieldTopInset)
+        }
+
         NSLayoutConstraint.activate([
-            titleTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.textFieldTopInset),
+            textFieldTop,
             titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.sideInset),
             titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.sideInset),
             titleTextField.heightAnchor.constraint(equalToConstant: Layout.textFieldHeight)
@@ -204,7 +231,7 @@ final class NewTrackerViewController: UIViewController {
     }
 
     private func setupButtons() {
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(NSLocalizedString("common.cancel", comment: ""), for: .normal)
         cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         cancelButton.setTitleColor(UIColor(resource: .ypRed), for: .normal)
         cancelButton.backgroundColor = UIColor(resource: .ypWhite)
@@ -214,7 +241,7 @@ final class NewTrackerViewController: UIViewController {
         cancelButton.addTarget(self, action: #selector(didTapCancel), for: .touchUpInside)
         cancelButton.accessibilityIdentifier = AccessibilityIdentifiers.cancelTrackerButton
 
-        createButton.setTitle("Создать", for: .normal)
+        createButton.setTitle(viewModel.saveButtonTitle, for: .normal)
         createButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         createButton.setTitleColor(UIColor(resource: .ypWhite), for: .normal)
         createButton.layer.cornerRadius = Layout.cornerRadius
@@ -258,9 +285,9 @@ final class NewTrackerViewController: UIViewController {
         guard let result = viewModel.makeTracker() else { return }
 
         // добавляю после закрытия, чтобы алерт с ошибкой показался на главном экране
-        let onCreate = onCreate
+        let onSave = onSave
         dismiss(animated: true) {
-            onCreate?(result.tracker, result.categoryTitle)
+            onSave?(result.tracker, result.categoryTitle)
         }
     }
 

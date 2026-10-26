@@ -35,11 +35,11 @@ final class OnboardingViewModel {
     var onFinish: (() -> Void)?
 
     let pages = [
-        OnboardingPage(title: "Отслеживайте только то, что хотите", backgroundImage: .onboardingBlue),
-        OnboardingPage(title: "Даже если это не литры воды и йога", backgroundImage: .onboardingRed)
+        OnboardingPage(title: NSLocalizedString("onboarding.page1", comment: ""), backgroundImage: .onboardingBlue),
+        OnboardingPage(title: NSLocalizedString("onboarding.page2", comment: ""), backgroundImage: .onboardingRed)
     ]
 
-    let buttonTitle = "Вот это технологии!"
+    let buttonTitle = NSLocalizedString("onboarding.button", comment: "")
 
     private let storage: OnboardingStorage
 

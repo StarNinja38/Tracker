@@ -13,6 +13,9 @@ final class TrackersViewController: UIViewController {
         static let placeholderImageSize: CGFloat = 80
         static let placeholderSpacing: CGFloat = 8
         static let placeholderCenterOffset: CGFloat = 30
+        static let filterButtonWidth: CGFloat = 114
+        static let filterButtonHeight: CGFloat = 50
+        static let filterButtonBottomInset: CGFloat = 16
     }
 
     private let viewModel: TrackersViewModel
@@ -27,6 +30,7 @@ final class TrackersViewController: UIViewController {
     )
     private let placeholderImageView = UIImageView()
     private let placeholderLabel = UILabel()
+    private let filterButton = UIButton(type: .system)
 
     init(viewModel: TrackersViewModel = TrackersViewModel()) {
         self.viewModel = viewModel
@@ -45,8 +49,19 @@ final class TrackersViewController: UIViewController {
         setupNavigationBar()
         setupCollectionView()
         setupPlaceholder()
+        setupFilterButton()
         bind()
         viewModel.loadData()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.viewDidAppear()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        viewModel.viewDidDisappear()
     }
 
     private func bind() {
@@ -54,30 +69,40 @@ final class TrackersViewController: UIViewController {
             self?.visibleCategories = categories
             self?.collectionView.reloadData()
         }
-        viewModel.onPlaceholderChange = { [weak self] text in
-            self?.setPlaceholder(text: text)
+        viewModel.onPlaceholderChange = { [weak self] placeholder in
+            self?.setPlaceholder(placeholder)
+        }
+        viewModel.onFilterButtonChange = { [weak self] state in
+            self?.filterButton.isHidden = state.isHidden
+            self?.filterButton.setTitleColor(state.isActive ? UIColor(resource: .ypRed) : .white, for: .normal)
+        }
+        viewModel.onDateChange = { [weak self] date in
+            self?.datePicker.setDate(date, animated: true)
         }
         viewModel.onErrorStateChange = { [weak self] message in
             self?.showError(message: message)
         }
     }
 
-    private func setPlaceholder(text: String?) {
-        let isEmpty = text != nil
-        placeholderLabel.text = text
+    private func setPlaceholder(_ placeholder: TrackersPlaceholder?) {
+        let isEmpty = placeholder != nil
+        placeholderLabel.text = placeholder?.text
+        placeholderImageView.image = placeholder == .nothingFound
+            ? UIImage(resource: .placeholderNothingFound)
+            : UIImage(resource: .placeholderStar)
         placeholderImageView.isHidden = !isEmpty
         placeholderLabel.isHidden = !isEmpty
         collectionView.isHidden = isEmpty
     }
 
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: NSLocalizedString("common.error", comment: ""), message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 
     private func setupNavigationBar() {
-        title = "Трекеры"
+        title = NSLocalizedString("main.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
 
         // обычный UIBarButtonItem рисует круглый фон, а в макете его нет
@@ -93,13 +118,12 @@ final class TrackersViewController: UIViewController {
 
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.date = viewModel.currentDate
         datePicker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
 
-        // TODO: поиск сделаю в следующем спринте
-        searchController.searchBar.placeholder = "Поиск"
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = NSLocalizedString("main.search", comment: "")
         searchController.obscuresBackgroundDuringPresentation = false
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
@@ -116,6 +140,9 @@ final class TrackersViewController: UIViewController {
             withReuseIdentifier: TrackerCategoryHeaderView.reuseIdentifier
         )
         collectionView.accessibilityIdentifier = AccessibilityIdentifiers.trackersCollection
+        // место под кнопкой фильтров, чтобы последние карточки можно было докрутить выше нее
+        collectionView.contentInset.bottom = Layout.filterButtonHeight + Layout.filterButtonBottomInset * 2
+        collectionView.alwaysBounceVertical = true
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
@@ -149,9 +176,35 @@ final class TrackersViewController: UIViewController {
         ])
     }
 
+    private func setupFilterButton() {
+        filterButton.setTitle(NSLocalizedString("main.filters", comment: ""), for: .normal)
+        filterButton.titleLabel?.font = .systemFont(ofSize: 17)
+        filterButton.setTitleColor(.white, for: .normal)
+        filterButton.backgroundColor = UIColor(resource: .ypBlue)
+        filterButton.layer.cornerRadius = 16
+        filterButton.isHidden = true
+        filterButton.accessibilityIdentifier = AccessibilityIdentifiers.filtersButton
+        filterButton.addTarget(self, action: #selector(didTapFilters), for: .touchUpInside)
+        filterButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filterButton)
+        NSLayoutConstraint.activate([
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -Layout.filterButtonBottomInset),
+            filterButton.widthAnchor.constraint(equalToConstant: Layout.filterButtonWidth),
+            filterButton.heightAnchor.constraint(equalToConstant: Layout.filterButtonHeight)
+        ])
+    }
+
+    @objc private func didTapFilters() {
+        viewModel.didTapFilters()
+        let filters = FiltersViewController(viewModel: viewModel.makeFiltersViewModel())
+        present(UINavigationController(rootViewController: filters), animated: true)
+    }
+
     @objc private func didTapAddTracker() {
+        viewModel.didTapAddTracker()
         let trackerType = TrackerTypeViewController()
-        trackerType.onCreate = { [weak self] tracker, categoryTitle in
+        trackerType.onSave = { [weak self] tracker, categoryTitle in
             self?.viewModel.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         }
         let navigationController = UINavigationController(rootViewController: trackerType)
@@ -160,6 +213,37 @@ final class TrackersViewController: UIViewController {
 
     @objc private func dateChanged() {
         viewModel.didChangeDate(datePicker.date)
+    }
+
+    private func editTracker(at indexPath: IndexPath) {
+        guard let editViewModel = viewModel.makeEditViewModel(at: indexPath) else { return }
+        let editViewController = NewTrackerViewController(viewModel: editViewModel)
+        editViewController.onSave = { [weak self] tracker, categoryTitle in
+            self?.viewModel.updateTracker(tracker, categoryTitle: categoryTitle)
+        }
+        present(UINavigationController(rootViewController: editViewController), animated: true)
+    }
+
+    private func confirmDeleteTracker(at indexPath: IndexPath) {
+        guard let trackerId = viewModel.trackerId(at: indexPath) else { return }
+        let alert = UIAlertController(
+            title: nil,
+            message: NSLocalizedString("alert.deleteTracker", comment: ""),
+            preferredStyle: .actionSheet
+        )
+        alert.addAction(UIAlertAction(title: NSLocalizedString("menu.delete", comment: ""), style: .destructive) { [weak self] _ in
+            self?.viewModel.deleteTracker(id: trackerId)
+        })
+        alert.addAction(UIAlertAction(title: NSLocalizedString("common.cancel", comment: ""), style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func cardPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard
+            let indexPath = configuration.identifier as? IndexPath,
+            let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell
+        else { return nil }
+        return UITargetedPreview(view: cell.previewView)
     }
 }
 
@@ -225,6 +309,46 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
     func collectionView(
         _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let indexPath = indexPaths.first else { return nil }
+        let pinTitle = viewModel.pinActionTitle(at: indexPath)
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { [weak self] _ in
+            UIMenu(children: [
+                UIAction(title: pinTitle) { _ in
+                    self?.viewModel.didTogglePin(at: indexPath)
+                },
+                UIAction(title: NSLocalizedString("menu.edit", comment: "")) { _ in
+                    self?.viewModel.didSelectEdit()
+                    self?.editTracker(at: indexPath)
+                },
+                UIAction(title: NSLocalizedString("menu.delete", comment: ""), attributes: .destructive) { _ in
+                    self?.viewModel.didSelectDelete()
+                    self?.confirmDeleteTracker(at: indexPath)
+                }
+            ])
+        }
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfiguration configuration: UIContextMenuConfiguration,
+        highlightPreviewForItemAt indexPath: IndexPath
+    ) -> UITargetedPreview? {
+        cardPreview(for: configuration)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfiguration configuration: UIContextMenuConfiguration,
+        dismissalPreviewForItemAt indexPath: IndexPath
+    ) -> UITargetedPreview? {
+        cardPreview(for: configuration)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
@@ -273,5 +397,14 @@ extension TrackersViewController: TrackerCellDelegate {
     func trackerCellDidTapPlus(_ cell: TrackerCell) {
         guard let indexPath = collectionView.indexPath(for: cell) else { return }
         viewModel.didTapComplete(at: indexPath)
+    }
+}
+
+// MARK: - UISearchResultsUpdating
+
+extension TrackersViewController: UISearchResultsUpdating {
+
+    func updateSearchResults(for searchController: UISearchController) {
+        viewModel.didChangeSearchText(searchController.searchBar.text ?? "")
     }
 }

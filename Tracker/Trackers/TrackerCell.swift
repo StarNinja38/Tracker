@@ -22,6 +22,8 @@ final class TrackerCell: UICollectionViewCell {
         static let plusTopInset: CGFloat = 8
         static let plusTrailingInset: CGFloat = 12
         static let counterLeadingInset: CGFloat = 12
+        static let pinSize: CGFloat = 24
+        static let pinInset: CGFloat = 4
     }
 
     weak var delegate: TrackerCellDelegate?
@@ -32,12 +34,19 @@ final class TrackerCell: UICollectionViewCell {
     private let titleLabel = UILabel()
     private let counterLabel = UILabel()
     private let plusButton = UIButton(type: .custom)
+    private let pinImageView = UIImageView()
+
+    // для контекстного меню подсвечиваем только цветную карточку, без счетчика
+    var previewView: UIView {
+        cardView
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupCard()
         setupEmoji()
         setupTitle()
+        setupPin()
         setupCounter()
         setupPlusButton()
     }
@@ -51,6 +60,7 @@ final class TrackerCell: UICollectionViewCell {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         titleLabel.text = tracker.title
+        pinImageView.isHidden = !tracker.isPinned
         counterLabel.text = Self.daysText(completedDays)
 
         let symbolName = isCompleted ? SystemImage.checkmark : SystemImage.plus
@@ -63,21 +73,9 @@ final class TrackerCell: UICollectionViewCell {
             : AccessibilityIdentifiers.trackerUndoneButton
     }
 
-    // склонение: 1 день, 2 дня, 5 дней
+    // склонение дней лежит в Localizable.stringsdict
     static func daysText(_ count: Int) -> String {
-        let remainder100 = count % 100
-        let remainder10 = count % 10
-        let word: String
-        if (11...14).contains(remainder100) {
-            word = "дней"
-        } else if remainder10 == 1 {
-            word = "день"
-        } else if (2...4).contains(remainder10) {
-            word = "дня"
-        } else {
-            word = "дней"
-        }
-        return "\(count) \(word)"
+        String.localizedStringWithFormat(NSLocalizedString("days.count", comment: ""), count)
     }
 
     private func setupCard() {
@@ -129,6 +127,24 @@ final class TrackerCell: UICollectionViewCell {
         ])
     }
 
+    private func setupPin() {
+        pinImageView.image = UIImage(
+            systemName: SystemImage.pin,
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
+        )
+        pinImageView.tintColor = .white
+        pinImageView.contentMode = .center
+        pinImageView.isHidden = true
+        pinImageView.translatesAutoresizingMaskIntoConstraints = false
+        cardView.addSubview(pinImageView)
+        NSLayoutConstraint.activate([
+            pinImageView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: Layout.pinInset),
+            pinImageView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -Layout.pinInset),
+            pinImageView.widthAnchor.constraint(equalToConstant: Layout.pinSize),
+            pinImageView.heightAnchor.constraint(equalToConstant: Layout.pinSize)
+        ])
+    }
+
     private func setupCounter() {
         counterLabel.font = .systemFont(ofSize: 12, weight: .medium)
         counterLabel.textColor = UIColor(resource: .ypBlack)
@@ -141,7 +157,7 @@ final class TrackerCell: UICollectionViewCell {
     }
 
     private func setupPlusButton() {
-        plusButton.tintColor = .white
+        plusButton.tintColor = UIColor(resource: .ypWhite)
         plusButton.layer.cornerRadius = Layout.plusButtonSize / 2
         plusButton.layer.masksToBounds = true
         plusButton.addTarget(self, action: #selector(didTapPlus), for: .touchUpInside)

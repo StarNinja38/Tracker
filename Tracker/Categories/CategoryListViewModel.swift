@@ -37,7 +37,7 @@ final class CategoryListViewModel {
             try store.performFetch()
             onErrorStateChange?(nil)
         } catch {
-            onErrorStateChange?("Не удалось загрузить категории")
+            onErrorStateChange?(NSLocalizedString("error.loadCategories", comment: ""))
         }
         reloadCategories()
     }
@@ -56,7 +56,7 @@ final class CategoryListViewModel {
         do {
             try store.deleteCategory(title)
         } catch {
-            onErrorStateChange?("Не удалось удалить категорию")
+            onErrorStateChange?(NSLocalizedString("error.deleteCategory", comment: ""))
             return
         }
         if title == selectedTitle {

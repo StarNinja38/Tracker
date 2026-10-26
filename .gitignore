@@ -11,3 +11,6 @@ project.yml
 
 # Тестовые артефакты
 *.xcresult
+
+# ключи
+Tracker/Config/Secrets.xcconfig

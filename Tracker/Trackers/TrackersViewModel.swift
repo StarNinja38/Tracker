@@ -9,17 +9,44 @@ struct TrackerCellViewModel {
     let isEnabled: Bool
 }
 
+// MARK: - TrackersPlaceholder
+
+enum TrackersPlaceholder {
+    case empty
+    case nothingFound
+    case loadError
+
+    var text: String {
+        switch self {
+        case .empty: NSLocalizedString("main.empty", comment: "")
+        case .nothingFound: NSLocalizedString("main.nothingFound", comment: "")
+        case .loadError: NSLocalizedString("main.loadError", comment: "")
+        }
+    }
+}
+
+// MARK: - FilterButtonState
+
+struct FilterButtonState {
+    let isHidden: Bool
+    let isActive: Bool
+}
+
 // MARK: - TrackersViewModel
 
 final class TrackersViewModel {
 
     private enum Text {
-        static let emptyPlaceholder = "Что будем отслеживать?"
-        static let loadError = "Не удалось загрузить трекеры"
+        static let pinned = NSLocalizedString("main.pinned", comment: "")
+        static let pin = NSLocalizedString("menu.pin", comment: "")
+        static let unpin = NSLocalizedString("menu.unpin", comment: "")
     }
 
     var onVisibleCategoriesChange: Binding<[TrackerCategory]>?
-    var onPlaceholderChange: Binding<String?>?
+    var onPlaceholderChange: Binding<TrackersPlaceholder?>?
+    var onFilterButtonChange: Binding<FilterButtonState>?
+    // фильтр трекеров на сегодня сам переключает дату в календаре
+    var onDateChange: Binding<Date>?
     var onErrorStateChange: Binding<String>?
 
     private(set) var categories: [TrackerCategory] = []
@@ -27,9 +54,11 @@ final class TrackersViewModel {
     // массив нужен по заданию
     private(set) var completedTrackers: [TrackerRecord] = []
 
-    private(set) var currentDate = Date()
+    private(set) var currentDate: Date
 
     private(set) var visibleCategories: [TrackerCategory] = []
+    private(set) var currentFilter: TrackerFilter = .all
+    private var searchText = ""
 
     // в Set чтобы быстро проверять, выполнен ли трекер
     private var completedRecords: Set<TrackerRecord> = []
@@ -38,15 +67,33 @@ final class TrackersViewModel {
     private let trackerStore: TrackerStore
     private let trackerRecordStore: TrackerRecordStore
     private let trackerCategoryStore: TrackerCategoryStore
+    private let analytics: AnalyticsServiceProtocol
 
-    init(trackerStore: TrackerStore = TrackerStore()) {
+    init(
+        trackerStore: TrackerStore,
+        trackerRecordStore: TrackerRecordStore,
+        trackerCategoryStore: TrackerCategoryStore,
+        currentDate: Date = Date(),
+        analytics: AnalyticsServiceProtocol = AnalyticsService()
+    ) {
+        self.analytics = analytics
         self.trackerStore = trackerStore
-        trackerRecordStore = TrackerRecordStore(trackerStore: trackerStore)
-        trackerCategoryStore = TrackerCategoryStore(trackerStore: trackerStore)
+        self.trackerRecordStore = trackerRecordStore
+        self.trackerCategoryStore = trackerCategoryStore
+        self.currentDate = currentDate
 
         trackerStore.delegate = self
         trackerRecordStore.delegate = self
         trackerCategoryStore.delegate = self
+    }
+
+    convenience init() {
+        let trackerStore = TrackerStore()
+        self.init(
+            trackerStore: trackerStore,
+            trackerRecordStore: TrackerRecordStore(trackerStore: trackerStore),
+            trackerCategoryStore: TrackerCategoryStore(trackerStore: trackerStore)
+        )
     }
 
     // если база не загрузилась, показываю ошибку, а не пустую заглушку
@@ -63,8 +110,58 @@ final class TrackersViewModel {
         reloadRecords()
     }
 
+    // MARK: - Аналитика
+
+    func viewDidAppear() {
+        analytics.report(event: .open, screen: .main, item: nil)
+    }
+
+    func viewDidDisappear() {
+        analytics.report(event: .close, screen: .main, item: nil)
+    }
+
+    func didTapAddTracker() {
+        analytics.report(event: .click, screen: .main, item: .addTrack)
+    }
+
+    func didTapFilters() {
+        analytics.report(event: .click, screen: .main, item: .filter)
+    }
+
+    func didSelectEdit() {
+        analytics.report(event: .click, screen: .main, item: .edit)
+    }
+
+    func didSelectDelete() {
+        analytics.report(event: .click, screen: .main, item: .delete)
+    }
+
     func didChangeDate(_ date: Date) {
         currentDate = date
+        reloadVisibleCategories()
+    }
+
+    func didChangeSearchText(_ text: String) {
+        searchText = text.trimmingCharacters(in: .whitespaces)
+        reloadVisibleCategories()
+    }
+
+    func makeFiltersViewModel() -> FiltersViewModel {
+        let viewModel = FiltersViewModel(selectedFilter: currentFilter)
+        viewModel.onFilterSelected = { [weak self] filter in
+            self?.didSelectFilter(filter)
+        }
+        return viewModel
+    }
+
+    private func didSelectFilter(_ filter: TrackerFilter) {
+        if filter == .today {
+            currentDate = Date()
+            onDateChange?(currentDate)
+            currentFilter = .all
+        } else {
+            currentFilter = filter
+        }
         reloadVisibleCategories()
     }
 
@@ -72,12 +169,60 @@ final class TrackersViewModel {
         do {
             try trackerStore.addTracker(tracker, toCategoryWithTitle: categoryTitle)
         } catch {
-            onErrorStateChange?("Не удалось сохранить трекер")
+            onErrorStateChange?(NSLocalizedString("error.saveTracker", comment: ""))
         }
+    }
+
+    func updateTracker(_ tracker: Tracker, categoryTitle: String) {
+        do {
+            try trackerStore.updateTracker(tracker, categoryTitle: categoryTitle)
+        } catch {
+            onErrorStateChange?(NSLocalizedString("error.saveTracker", comment: ""))
+        }
+    }
+
+    // MARK: - Контекстное меню
+
+    func trackerId(at indexPath: IndexPath) -> UUID? {
+        tracker(at: indexPath)?.id
+    }
+
+    func pinActionTitle(at indexPath: IndexPath) -> String {
+        tracker(at: indexPath)?.isPinned == true ? Text.unpin : Text.pin
+    }
+
+    func didTogglePin(at indexPath: IndexPath) {
+        guard let tracker = tracker(at: indexPath) else { return }
+        do {
+            try trackerStore.setPinned(!tracker.isPinned, forTrackerWith: tracker.id)
+        } catch {
+            onErrorStateChange?(NSLocalizedString("error.pinTracker", comment: ""))
+        }
+    }
+
+    func deleteTracker(id: UUID) {
+        do {
+            try trackerStore.deleteTracker(id: id)
+        } catch {
+            onErrorStateChange?(NSLocalizedString("error.deleteTracker", comment: ""))
+        }
+    }
+
+    func makeEditViewModel(at indexPath: IndexPath) -> NewTrackerViewModel? {
+        guard
+            let tracker = tracker(at: indexPath),
+            let categoryTitle = categories.first(where: { $0.trackers.contains { $0.id == tracker.id } })?.title
+        else { return nil }
+        return NewTrackerViewModel(
+            editing: tracker,
+            categoryTitle: categoryTitle,
+            completedDays: completedTrackers.filter { $0.trackerId == tracker.id }.count
+        )
     }
 
     // на будущую дату отмечать нельзя
     func didTapComplete(at indexPath: IndexPath) {
+        analytics.report(event: .click, screen: .main, item: .track)
         guard isCurrentDateEditable, let tracker = tracker(at: indexPath) else { return }
         let record = TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay)
 
@@ -88,7 +233,7 @@ final class TrackersViewModel {
                 try trackerRecordStore.addRecord(record)
             }
         } catch {
-            onErrorStateChange?("Не удалось сохранить отметку")
+            onErrorStateChange?(NSLocalizedString("error.saveRecord", comment: ""))
         }
     }
 
@@ -126,18 +271,39 @@ final class TrackersViewModel {
     }
 
     private func reloadVisibleCategories() {
-        if let weekDay = WeekDay.from(date: currentDate) {
-            visibleCategories = categories.compactMap { category in
-                let trackers = category.trackers.filter { isVisible($0, weekDay: weekDay) }
-                return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
-            }
-        } else {
-            visibleCategories = []
-        }
+        guard let weekDay = WeekDay.from(date: currentDate) else { return }
+        let dayTrackers = categories.flatMap(\.trackers).filter { isVisible($0, weekDay: weekDay) }
+        let shownIds = Set(dayTrackers.filter(matchesFilterAndSearch).map(\.id))
 
+        // закрепленные трекеры уходят из своей категории в отдельную секцию сверху
+        let pinned = dayTrackers.filter { $0.isPinned && shownIds.contains($0.id) }
+        let others: [TrackerCategory] = categories.compactMap { category in
+            let trackers = category.trackers.filter { !$0.isPinned && shownIds.contains($0.id) }
+            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
+        }
+        visibleCategories = pinned.isEmpty ? others : [TrackerCategory(title: Text.pinned, trackers: pinned)] + others
         onVisibleCategoriesChange?(visibleCategories)
-        let placeholder = isLoadFailed ? Text.loadError : Text.emptyPlaceholder
-        onPlaceholderChange?(visibleCategories.isEmpty ? placeholder : nil)
+
+        // кнопку фильтров прячем, если на этот день трекеров нет совсем
+        onFilterButtonChange?(FilterButtonState(isHidden: dayTrackers.isEmpty, isActive: currentFilter.isActive))
+
+        if dayTrackers.isEmpty {
+            onPlaceholderChange?(isLoadFailed ? .loadError : .empty)
+        } else {
+            onPlaceholderChange?(visibleCategories.isEmpty ? .nothingFound : nil)
+        }
+    }
+
+    private func matchesFilterAndSearch(_ tracker: Tracker) -> Bool {
+        if !searchText.isEmpty && !tracker.title.localizedCaseInsensitiveContains(searchText) {
+            return false
+        }
+        let isCompleted = completedRecords.contains(TrackerRecord(trackerId: tracker.id, date: currentDate.startOfDay))
+        switch currentFilter {
+        case .all, .today: return true
+        case .completed: return isCompleted
+        case .uncompleted: return !isCompleted
+        }
     }
 
     // нерегулярное событие видно каждый день, пока не выполнено, потом только в день выполнения
@@ -179,7 +345,7 @@ extension TrackersViewModel: TrackerCategoryStoreDelegate {
         do {
             try trackerStore.performFetch()
         } catch {
-            onErrorStateChange?("Не удалось обновить трекеры")
+            onErrorStateChange?(NSLocalizedString("error.updateTrackers", comment: ""))
         }
         reloadCategories()
     }
